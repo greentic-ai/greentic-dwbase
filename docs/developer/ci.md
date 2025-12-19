@@ -11,3 +11,5 @@ Run the same checks locally that CI enforces:
 - `python3 tools/check_schema_sync.py` (validates `component.manifest.json` JSON and compares the operation list to `wit/dwbase-core.wit` exports; allowlists `dwbase.world.list` and WIT-only ops `dwbase.observe`, `dwbase.metrics_snapshot`)
 
 These commands fail fast when the WASI build breaks, the pack drifts, or the manifest/WIT exports diverge.
+
+Shortcut: `ci/local_check.sh` runs exactly what CI runs (fmt, clippy, tests, wasm32-wasip2 build, pack build, schema sync).

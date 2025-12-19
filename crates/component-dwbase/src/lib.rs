@@ -1985,6 +1985,9 @@ impl engine::Guest for Component {
     }
 }
 
+// Expose the WIT exports for this component.
+export!(Component);
+
 #[cfg(test)]
 mod tests {
     use super::*;

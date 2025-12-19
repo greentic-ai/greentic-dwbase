@@ -1,0 +1,48 @@
+name: Publish Crates + Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Show workspace version
+        id: version
+        run: |
+          ver=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name=="dwbase-core") | .version' | head -n1)
+          echo "version=${ver}" >> "$GITHUB_OUTPUT"
+          echo "Workspace version: ${ver}"
+
+      - name: Publish crates (ignore already uploaded)
+        env:
+          CARGO_REGISTRIES_CRATES_IO_TOKEN: ${{ secrets.CARGO_TOKEN }}
+        run: |
+          ./ci/publish-crates.sh || true
+
+      - name: Create/Update GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body: "Automated release for version v${{ steps.version.outputs.version }} (crates.io publish)."
+          allowUpdates: true
+          makeLatest: true

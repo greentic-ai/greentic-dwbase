@@ -4,6 +4,10 @@ edition.workspace = true
 license.workspace = true
 version.workspace = true
 
+description.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
 [features]
 default = []
 swarm = ["async-trait", "tokio"]
@@ -12,13 +16,13 @@ swarm = ["async-trait", "tokio"]
 serde = { workspace = true, features = ["derive"] }
 thiserror.workspace = true
 bincode.workspace = true
-async-trait = { version = "0.1.83", optional = true }
-tokio = { version = "1.40.0", features = ["net", "time", "sync"], optional = true }
-dwbase-core = { path = "../dwbase-core" }
-dwbase-engine = { path = "../dwbase-engine" }
-siphasher = "1.0.1"
+async-trait = { workspace = true, optional = true }
+tokio = { workspace = true, features = ["net", "time", "sync"], optional = true }
+dwbase-core = { workspace = true }
+dwbase-engine = { workspace = true }
+siphasher.workspace = true
 time = { workspace = true }
 
 [dev-dependencies]
-async-trait = "0.1.83"
-tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread", "time", "net", "sync"] }
+async-trait.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "time", "net", "sync"] }

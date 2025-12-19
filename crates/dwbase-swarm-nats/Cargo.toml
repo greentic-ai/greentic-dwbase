@@ -4,6 +4,10 @@ edition.workspace = true
 license.workspace = true
 version.workspace = true
 
+description.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
 [features]
 default = ["mock"]
 mock = []
@@ -13,18 +17,18 @@ nats = ["dep:async-nats", "dep:tokio", "dep:futures"]
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 time.workspace = true
-once_cell = "1.20.2"
-parking_lot = "0.12.3"
-anyhow = "1.0.89"
-async-nats = { version = "0.38.0", default-features = false, features = ["ring"], optional = true }
-tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread", "time", "sync"], optional = true }
-futures = { version = "0.3.30", optional = true }
-dwbase-swarm = { path = "../dwbase-swarm" }
-dwbase-engine = { path = "../dwbase-engine" }
-dwbase-core = { path = "../dwbase-core" }
+once_cell.workspace = true
+parking_lot.workspace = true
+anyhow.workspace = true
+async-nats = { workspace = true, default-features = false, features = ["ring"], optional = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "time", "sync"], optional = true }
+futures = { workspace = true, optional = true }
+dwbase-swarm = { workspace = true }
+dwbase-engine = { workspace = true }
+dwbase-core = { workspace = true }
 bincode = { workspace = true }
 rand = { workspace = true }
-hex = "0.4.3"
+hex.workspace = true
 
 [dev-dependencies]
-tempfile = "3.12.0"
+tempfile.workspace = true

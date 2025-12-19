@@ -4,6 +4,10 @@ edition.workspace = true
 license.workspace = true
 version.workspace = true
 
+description.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
 [[bin]]
 name = "dwbase"
 path = "src/main.rs"
@@ -20,28 +24,28 @@ pkg-url = "https://github.com/agentic/greentic-dwbase/releases/download/v{ versi
 pkg-fmt = "zip"
 
 [dependencies]
-anyhow = "1.0.89"
-clap = { version = "4.5.16", features = ["derive"] }
-dwbase-core = { path = "../dwbase-core" }
-dwbase-engine = { path = "../dwbase-engine" }
-dwbase-security = { path = "../dwbase-security" }
-dwbase-embedder-dummy = { path = "../dwbase-embedder-dummy" }
-dwbase-vector-hnsw = { path = "../dwbase-vector-hnsw" }
-dwbase-stream-local = { path = "../dwbase-stream-local" }
+anyhow.workspace = true
+clap = { workspace = true, features = ["derive"] }
+dwbase-core = { workspace = true }
+dwbase-engine = { workspace = true }
+dwbase-security = { workspace = true }
+dwbase-embedder-dummy = { workspace = true }
+dwbase-vector-hnsw = { workspace = true }
+dwbase-stream-local = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
-tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
-reqwest = { version = "0.12.8", features = ["json"] }
-ctrlc = "3.4.4"
-toml = "0.8.19"
-dwbase-storage-sled = { path = "../dwbase-storage-sled" }
-tar = "0.4.41"
-zstd = "0.12.4"
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+reqwest = { workspace = true, features = ["json"] }
+ctrlc.workspace = true
+toml.workspace = true
+dwbase-storage-sled = { workspace = true }
+tar.workspace = true
+zstd.workspace = true
 time.workspace = true
-tempfile = "3.12.0"
-humantime = "2.1.0"
-walkdir = "2.5.0"
-sled = "0.34.7"
-uuid = { version = "1.10.0", features = ["v4"] }
+tempfile.workspace = true
+humantime.workspace = true
+walkdir.workspace = true
+sled.workspace = true
+uuid = { workspace = true, features = ["v4"] }
 
 [dev-dependencies]

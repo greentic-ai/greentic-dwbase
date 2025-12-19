@@ -10,7 +10,7 @@ mkdir -p "$DIST_DIR"
 mkdir -p "$COMPONENT_DIR"
 
 echo "==> Building component-dwbase (wasm32-wasip2, release)"
-cargo build -p component-dwbase --release --target wasm32-wasip2
+cargo build -p component-dwbase --release --target wasm32-wasip2 --features component-wasm --locked
 
 WASM_SRC="$ROOT/target/wasm32-wasip2/release/component_dwbase.wasm"
 if [[ ! -f "$WASM_SRC" ]]; then
@@ -40,4 +40,3 @@ echo "==> Packaging $OUT (zip format with .gtpack extension)"
 )
 
 echo "==> Done: $OUT"
-
