@@ -1,0 +1,5 @@
+dist/
+components/component-dwbase/component.wasm
+data/
+demo-data/
+

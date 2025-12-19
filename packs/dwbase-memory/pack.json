@@ -1,0 +1,23 @@
+{
+  "apiVersion": "greentic.pack/v1",
+  "kind": "Pack",
+  "name": "dwbase-memory",
+  "version": "0.1.0",
+  "description": "Greentic pack: component-dwbase + demo flow proving LLM long-term memory.",
+  "components": [
+    {
+      "name": "component-dwbase",
+      "manifest": "components/component-dwbase/component.manifest.json",
+      "artifact": "components/component-dwbase/component.wasm"
+    }
+  ],
+  "flows": [
+    {
+      "name": "memory_demo",
+      "file": "flows/memory_demo.json"
+    }
+  ],
+  "defaults": {
+    "envFile": "config/default.env"
+  }
+}

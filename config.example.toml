@@ -1,0 +1,17 @@
+[node]
+listen = "127.0.0.1:8080"
+data_dir = "./data"
+embedder = "dummy"
+
+[node.security]
+read_worlds = []
+write_worlds = []
+importance_cap = 1.0
+remember_per_sec = 10
+ask_per_min = 60
+
+[node.storage]
+# Set encryption_enabled=true to AES-GCM encrypt on-disk log/atom entries.
+# Provide a key id and define the hex key material in env var DWBASE_KEY_<KEY_ID>.
+encryption_enabled = false
+# key_id = "primary"

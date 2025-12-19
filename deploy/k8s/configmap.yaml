@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dwbase-config
+data:
+  config.toml: |
+    [node]
+    listen = "0.0.0.0:8080"
+    data_dir = "/data"
+    embedder = "dummy"
+    [node.security]
+    read_worlds = []
+    write_worlds = []
+    importance_cap = 1.0
+    remember_per_sec = 10
+    ask_per_min = 60
+    [node.storage]
+    encryption_enabled = false
+    # key_id = "primary"

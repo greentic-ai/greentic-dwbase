@@ -1,0 +1,30 @@
+[package]
+name = "dwbase-swarm-nats"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[features]
+default = ["mock"]
+mock = []
+nats = ["dep:async-nats", "dep:tokio", "dep:futures"]
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+time.workspace = true
+once_cell = "1.20.2"
+parking_lot = "0.12.3"
+anyhow = "1.0.89"
+async-nats = { version = "0.38.0", default-features = false, features = ["ring"], optional = true }
+tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread", "time", "sync"], optional = true }
+futures = { version = "0.3.30", optional = true }
+dwbase-swarm = { path = "../dwbase-swarm" }
+dwbase-engine = { path = "../dwbase-engine" }
+dwbase-core = { path = "../dwbase-core" }
+bincode = { workspace = true }
+rand = { workspace = true }
+hex = "0.4.3"
+
+[dev-dependencies]
+tempfile = "3.12.0"

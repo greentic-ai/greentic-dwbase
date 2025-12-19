@@ -1,0 +1,12 @@
+[package]
+name = "dwbase-metrics"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[features]
+default = []
+
+[dependencies]
+metrics.workspace = true
+tracing.workspace = true

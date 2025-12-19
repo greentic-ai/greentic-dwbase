@@ -1,0 +1,24 @@
+[package]
+name = "dwbase-swarm"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[features]
+default = []
+swarm = ["async-trait", "tokio"]
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+thiserror.workspace = true
+bincode.workspace = true
+async-trait = { version = "0.1.83", optional = true }
+tokio = { version = "1.40.0", features = ["net", "time", "sync"], optional = true }
+dwbase-core = { path = "../dwbase-core" }
+dwbase-engine = { path = "../dwbase-engine" }
+siphasher = "1.0.1"
+time = { workspace = true }
+
+[dev-dependencies]
+async-trait = "0.1.83"
+tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread", "time", "net", "sync"] }

@@ -1,0 +1,40 @@
+[package]
+name = "component-dwbase"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[features]
+default = []
+nats = ["dwbase-swarm-nats/nats"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+dwbase-core = { path = "../dwbase-core" }
+dwbase-engine = { path = "../dwbase-engine" }
+dwbase-security = { path = "../dwbase-security" }
+dwbase-embedder-dummy = { path = "../dwbase-embedder-dummy" }
+dwbase-swarm = { path = "../dwbase-swarm" }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+time.workspace = true
+once_cell = "1.20.2"
+metrics = { workspace = true }
+metrics-exporter-prometheus = "0.13.1"
+wit-bindgen = "0.27.0"
+futures = "0.3.30"
+dwbase-swarm-nats = { path = "../dwbase-swarm-nats" }
+parking_lot = "0.12.3"
+dwbase-metrics = { path = "../dwbase-metrics" }
+hex = "0.4.3"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+fs2 = "0.4.3"
+
+[dev-dependencies]
+tempfile = "3.12.0"
+
+[[example]]
+name = "memory_demo"

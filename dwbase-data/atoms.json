@@ -1,0 +1,34 @@
+{
+  "atoms": {
+    "tenant:default/summaries": [
+      {
+        "id": "atom-2",
+        "world": "tenant:default/summaries",
+        "worker": "llm",
+        "kind": "reflection",
+        "timestamp": "2025-12-18T12:10:38.567657Z",
+        "importance": 0.3,
+        "payload_json": "{\"summary\":\"answer-pending\",\"supporting_count\":1}",
+        "vector": null,
+        "flags": [],
+        "labels": [],
+        "links": []
+      }
+    ],
+    "tenant:default/facts": [
+      {
+        "id": "atom-1",
+        "world": "tenant:default/facts",
+        "worker": "llm",
+        "kind": "observation",
+        "timestamp": "2025-12-18T12:10:38.566198Z",
+        "importance": 0.6,
+        "payload_json": "{\"text\":\"I live in Berlin.\"}",
+        "vector": null,
+        "flags": [],
+        "labels": [],
+        "links": []
+      }
+    ]
+  }
+}

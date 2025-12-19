@@ -1,0 +1,124 @@
+# Repository Overview
+
+## 1. High-Level Purpose
+- Rust workspace for DWBase covering the core immutable Atom model, engine orchestration, storage/vector/stream/security adapters, WIT interfaces, operator tooling (deploy/backup/check), and a production-minded WASI component (`component-dwbase`) intended to be callable from Greentic flows/LLMs.
+- Conventions: Apache-2.0 licensing, workspace manifest with shared dependencies, local check script, GitHub Actions CI running fmt/clippy/tests, plus a tag-triggered release workflow publishing OCI artifacts.
+
+## 2. Main Components and Functionality
+- **Path:** `Cargo.toml`
+  - **Role:** Workspace manifest (resolver 2) with all crates under `crates/*`; shared metadata (edition 2021, Apache-2.0, v0.1.0) and dependencies (serde, bincode/rmp-serde, serde_json, thiserror, time, hnsw_rs, rand, num_cpus, wit-parser).
+- **Path:** `wit/dwbase-types.wit`, `wit/dwbase-core.wit`
+  - **Role:** WIT definitions for DWBase types and the core engine world.
+  - **Key functionality:** `dwbase-core` defines `remember`, `ask`, `replay`, `observe` plus flow-friendly observe streams (`observe-start`/`observe-poll`/`observe-stop`) and an operator health snapshot (`health`). `dwbase-types` exists for shared shapes, but `dwbase-core` still inlines shapes for compatibility with current WIT tooling.
+- **Path:** `crates/dwbase-core`
+  - **Role:** Core immutable data model.
+  - **Key functionality:** Newtypes for AtomId/WorldKey/WorkerKey; AtomKind enum; Timestamp wrapper; Importance validated/clamped to [0,1]; immutable Atom with payload JSON, optional vector, flags/labels/links plus builder/accessors. Serde derives with optional bincode/rmp features. Tests cover serde roundtrips, importance validation, and AtomKind serde names.
+- **Path:** `crates/dwbase-engine`
+  - **Role:** Engine traits, reflex index, and orchestrator.
+  - **Key functionality:** Traits for storage/vector/stream/embedder/gatekeeper; types NewAtom/AtomFilter/Question/Answer/WorldMeta/WorldAction; ReflexIndex with recency buckets and filtering; DWBaseEngine orchestrates gatekeeper checks, id/timestamp assignment, optional embedding + vector upsert, storage append, reflex insert, stream publish in remember; ask uses reflex prefilter + storage fallback + optional vector search with deterministic reranking and warning metadata; observe publishes to stream; replay delegates to storage; remote ingest helper (`ingest_remote_atoms`); world lifecycle helpers (`manage_world` for create/archive/resume, `worlds/worlds_filtered` for active/all listings).
+  - **Production rules implemented:** basic quarantine heuristics, conflict marking (supersedes/contradicts/confirms) with trust-aware ranking adjustments, and GC/retention parsing (`policy:*` labels including retention/min-importance/replication hints from `policy:<world>` and `tenant:<id>/policy` worlds).
+  - **Index lifecycle:** per-world index metadata tracked in-memory (version, embedder version, ready flag) to support safe fallback when ANN is stale/missing.
+- **Path:** `crates/dwbase-storage-sled`
+  - **Role:** Sled-backed append-only storage implementing StorageEngine.
+  - **Key functionality:** Stores atoms under `world/{world}/atoms/{id}` with per-world append log `world/{world}/log/{seq}`; scan replays log with filters/limits; stats counts atoms/vectors. Includes durable log hardening (frame checksums + recovery) and optional encryption-at-rest hooks via a `KeyProvider` (env-backed by default). Tests cover recovery and corruption detection.
+- **Path:** `crates/dwbase-vector-hnsw`
+  - **Role:** HNSW-backed VectorEngine.
+  - **Key functionality:** Per-world in-memory HNSW indexes (dimension fixed on first insert); upsert with optional metadata; nearest-neighbor search with metadata/world filters; Euclidean distance. Tests verify nearest-id retrieval and filtering.
+- **Path:** `crates/dwbase-stream-local`
+  - **Role:** Local StreamEngine.
+  - **Key functionality:** Per-subscriber mpsc channels with poll semantics; publish/subscribe/poll/stop; filters on world/kinds/labels/flags/time window. Tests cover delivery and filter enforcement.
+- **Path:** `crates/dwbase-security`
+  - **Role:** Capabilities, trust, and gatekeeping.
+  - **Key functionality:** Capabilities (world read/write, allowed kinds/labels, importance cap, rate limits, offline policy placeholder); TrustStore scaffolding; token-bucket rate limiting; LocalGatekeeper enforcing remember/ask/manage_world via permissions, caps, and rate limits. Tests cover capability denials and deterministic rate limiting.
+- **Path:** `crates/dwbase-wit-host`
+  - **Role:** Host-side WIT bindings scaffolding.
+  - **Key functionality:** Type conversions between WIT-shaped atoms/NewAtom and core types; EngineApi trait with WitHostAdapter delegating remember/ask/observe/replay; WIT parser smoke test.
+- **Path:** `crates/dwbase-wit-guest`
+  - **Role:** Guest-side WIT helpers.
+  - **Key functionality:** Minimal ClientConfig plus WIT parser smoke test for the types package.
+- **Path:** `crates/component-dwbase`
+  - **Role:** Production-minded WASI component for Greentic flows (LLM tool surface).
+  - **Key functionality:** Implements the WIT engine world with local persistence; safe-by-default tenant scoping and payload/kind/label/importance limits; poll-based observe streams; optional NATS presence and selective replication (durable subscription state under `<DWBASE_DATA_DIR>/swarm.json`, bounded inbox + replay/drop protections); optional per-world NATS observe broadcast; operator health snapshot and metrics emission via `dwbase-metrics` with a built-in Prometheus recorder and `metrics_snapshot` API for scraping. Includes `component.manifest.json` with JSON schemas for tooling plus a demo example (`examples/memory_demo.rs`).
+- **Path:** `crates/dwbase-embedder-dummy`
+  - **Role:** Dummy embedder for local/testing use.
+  - **Key functionality:** Implements the `Embedder` trait and returns `None` (no vector) for any payload; async-ready and clonable.
+- **Path:** `crates/dwbase-metrics`
+  - **Role:** Metrics/tracing facade.
+  - **Key functionality:** Helpers to emit counters/histograms/gauges for remember/ask latency, index freshness, GC evictions, and trust distribution snapshots; tracing events alongside metrics; no-op friendly when no recorder is installed. Tests ensure calls are panic-free.
+- **Path:** `crates/dwbase-swarm`
+  - **Role:** Swarm/membership and message skeleton.
+  - **Key functionality:** Peer identity/types, bloom filter helper, and message types intended to support gossip/sync layers (replication logic lives in `dwbase-swarm-nats` for now).
+- **Path:** `crates/dwbase-swarm-nats`
+  - **Role:** NATS-backed discovery + swarm messaging + selective replication helpers.
+  - **Key functionality:** Presence hello (`dwbase.node.hello`), per-node inbox messaging (`dwbase.swarm.<node_id>.inbox`), subscription intents broadcast (`dwbase.swarm.broadcast`), request/reply + correlation IDs (feature-gated real NATS; mock bus default), and per-world atom event broadcast (`dwbase.world.<hex(world_key)>.events`) for observe streams.
+- **Path:** `crates/dwbase-bench`
+  - **Role:** Performance benchmarking and load-test crate.
+  - **Key functionality:** Criterion benches for remember/ask/observe/replay throughput using sled storage, HNSW vector index, local stream, gatekeeper, and a simple embedder; load tests (runtime) exercising sustained remember, concurrent ask+remember, and observe fan-out with printed p95/ops stats and soft-target warnings.
+- **Path:** `crates/dwbase-node`
+  - **Role:** Node binary exposing a minimal HTTP API.
+  - **Key functionality:** Loads TOML config (listen addr, data dir, embedder selection, security caps); wires sled storage, HNSW vector index, local stream engine, gatekeeper, and dummy embedder into `DWBaseEngine`; serves Axum routes for `remember`, `ask`, `replay`, `worlds` (archived filtered), world lifecycle (`/worlds/manage`), policy atoms (`/worlds/policy`), `atoms/{id}`, plus ops endpoints (`/health`, `/healthz`, `/readyz`) and metrics (`/metrics` when enabled). Runnable via `cargo run -p dwbase-node -- --config ./config.toml`.
+- **Path:** `crates/dwbase-cli`
+  - **Role:** CLI binary for interacting with a running node over HTTP.
+  - **Key functionality:** Subcommands for `list-worlds`, `ask`, `replay`, `inspect`, world lifecycle (`world create|archive|resume`), and policy atoms (`world policy`), plus operator tooling:
+    - `deploy local|devnet|stop|clean` (process management + `.dwbase/devnet/state.json`)
+    - `storage check` (log validation)
+    - `backup create/restore`
+    - `index status`
+  - Uses engine types for JSON encoding; configurable `--api` base URL.
+- **Path:** `deploy/` and `Dockerfile`
+  - **Role:** Reproducible deployment artifacts.
+  - **Key functionality:** Local/devnet/edge config templates (`deploy/*.toml`), optional Kubernetes manifests under `deploy/k8s/`, and a minimal container build (`Dockerfile`) intended for local reproducibility.
+- **Path:** `packs/dwbase-memory/`
+  - **Role:** Greentic pack demo (`.gtpack`) proving LLM long-term memory behavior.
+  - **Key functionality:** Pack metadata, a demo flow (`memory_demo`), a safe default env config, and a local build script producing `dist/dwbase-memory.gtpack`.
+- **Path:** `tools/publish_components_oci.sh`, `.github/workflows/release.yml`
+  - **Role:** Turnkey distribution/publishing.
+  - **Key functionality:** Publishes `component-dwbase` and `dwbase-memory.gtpack` to GHCR as OCI artifacts via ORAS and emits lockfiles (`dist/components.lock.json`, `dist/packs.lock.json`) on tag releases (`v*`).
+- **Path:** `.github/workflows/ci.yml`, `ci/local_check.sh`
+  - **Role:** CI/local scripts running fmt, clippy (deny warnings), and tests.
+- **Path:** `scripts/codex_next.py`
+  - **Role:** Helper for managing .codex PR sequencing (`.codex/STATE.json`).
+- **Path:** `docs/architecture.md`, `docs/overview.md`, `docs/cli.md`, `docs/wit.md`, `docs/roadmap.md`, `docs/performance.md`, `docs/developer/*`
+  - **Role:** Documentation set with architecture diagrams (Mermaid), one-page overview, CLI usage, WIT contract notes, roadmap for v1.1/v1.2, performance/bench guidance, and developer deep-dives (engine, storage, vector, security, WIT).
+- **Path:** `docs/component-dwbase.md`, `docs/deployment.md`, `docs/production.md`
+  - **Role:** Operator runbooks (component + deploy + production posture).
+- **Path:** `examples/*`
+  - **Role:** User-facing scenarios:
+    - `basic_memory`, `replay_simulation`, `worlds_and_forks` (HTTP/CLI flows)
+    - `observe_stream` (standalone crate showing local stream subscriptions)
+    - `wasm-worker` (standalone WASM guest using `dwbase-wit-guest`)
+
+## 3. Work In Progress, TODOs, and Stubs
+- **Location:** crates/dwbase-swarm + crates/dwbase-swarm-nats
+  - **Status:** Partial
+  - **Short description:** Swarm transport/replication now persists subscription state, bounds inboxes, applies policy-aware send/receive, and drops replays; broader sync/authz durability and richer backpressure/metrics are still in progress.
+- **Location:** crates/dwbase-storage-sled/src/lib.rs (`get_by_ids`)
+  - **Status:** Partial/inefficient
+  - **Short description:** Scans across worlds to locate atom entries; noted as acceptable for now but not optimized.
+- **Location:** crates/component-dwbase/src/lib.rs (tool error semantics)
+  - **Status:** WIP
+  - **Short description:** Tool operations currently signal “denied”/invalid input by returning empty IDs or empty results in some paths; a structured error surface for hosts/flows would be more operable.
+- **Location:** crates/component-dwbase/src/lib.rs (health + disk capacity)
+  - **Status:** Partial
+  - **Short description:** `dwbase.health` computes disk usage by recursively sizing `DWBASE_DATA_DIR` and uses `DWBASE_MAX_DISK_MB` as “capacity”; it does not query filesystem free-space (WASI portability trade-off).
+- **Location:** crates/component-dwbase/src/lib.rs (observe stream durability)
+  - **Status:** Partial
+  - **Short description:** Observe streams are in-memory queues (bounded) and not persisted across restarts; cross-node observe is best-effort (optional NATS).
+- **Location:** packs/dwbase-memory/flows/memory_demo.json (flow format)
+  - **Status:** Demo / best-effort
+  - **Short description:** The pack/flow format is intentionally minimal and may need adjustment to match the exact Greentic flow runner schema/interpolation rules.
+
+## 4. Broken, Failing, or Conflicting Areas
+- `ci/local_check.sh` (fmt + clippy + tests) passes.
+
+## 5. Notes for Future Work
+- **Swarm hardening:** add durable membership state, authz/capability-aware subscription enforcement, replay protection, and configurable backpressure/rate limits; consider storing peer/subscription tables on disk for restarts.
+- **World policy surface:** add read APIs/schemas for policy atoms and clamp/validate inputs (e.g., min importance bounds) for operators.
+- **Component error model:** return structured errors (code/message/details) for remember/ask/observe/health rather than empty-string fallbacks; include warnings in WIT answers to surface degraded/fallback paths.
+- **Observability:** provide a first-class metrics exporter for component deployments (Prometheus/OTLP), and align `dwbase.health` fields with dashboards (disk capacity vs free-space, index freshness semantics).
+- **Embedder + index:** add a real embedder implementation, model/version management, and make index rebuild truly backgrounded with observable progress/lag.
+- **Storage performance:** optimize `get_by_ids`, and consider indexing/secondary keys to reduce scan costs; expand corruption recovery + encryption coverage.
+- **WIT/tooling stability:** keep `component.manifest.json` schemas in lock-step with WIT types; add CI checks for the `wasm32-wasip2` build and pack build (release workflow already does this on tags).
+- **Pack runner compatibility:** align the `.gtpack` and flow schema with the canonical Greentic pack spec and add a host-side integration test using the real flow runner.
+- **Swarm hardening:** extend durable state to full membership/exchange (not just subscriptions), surface backpressure/duplicate metrics, and integrate capability-aware checks with node deployments.
+- **Telemetry:** add OTLP and host-provided recorder options alongside the Prometheus snapshot for component deployments.

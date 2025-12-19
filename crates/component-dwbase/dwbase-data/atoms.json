@@ -1,0 +1,32 @@
+{
+  "atoms": {
+    "w1": [
+      {
+        "id": "atom-1",
+        "world": "w1",
+        "worker": "worker-1",
+        "kind": "observation",
+        "timestamp": "2024-01-01T00:00:00Z",
+        "importance": 0.5,
+        "payload_json": "{\"note\":\"hello\"}",
+        "vector": null,
+        "flags": [],
+        "labels": [],
+        "links": []
+      },
+      {
+        "id": "atom-1",
+        "world": "w1",
+        "worker": "worker-1",
+        "kind": "observation",
+        "timestamp": "2024-01-01T00:00:00Z",
+        "importance": 0.5,
+        "payload_json": "{\"note\":\"hello\"}",
+        "vector": null,
+        "flags": [],
+        "labels": [],
+        "links": []
+      }
+    ]
+  }
+}

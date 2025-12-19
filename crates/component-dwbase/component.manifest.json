@@ -1,0 +1,1623 @@
+{
+    "name": "component-dwbase",
+    "version": "0.1.0",
+    "description": "DWBase WASI component exposing remember/ask/replay/observe streams/world.list operations with local persistence.",
+    "operations": [
+        {
+            "name": "dwbase.remember",
+            "description": "Persist a new atom into a world.",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "world_key",
+                    "worker",
+                    "kind",
+                    "timestamp",
+                    "importance",
+                    "payload_json"
+                ],
+                "properties": {
+                    "world_key": {
+                        "type": "string"
+                    },
+                    "worker": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string",
+                        "enum": [
+                            "observation",
+                            "reflection",
+                            "plan",
+                            "action",
+                            "message"
+                        ]
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "description": "RFC3339 timestamp"
+                    },
+                    "importance": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    },
+                    "payload_json": {
+                        "type": "string",
+                        "description": "Opaque JSON payload"
+                    },
+                    "vector": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    "flags_list": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    },
+                    "labels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    },
+                    "links": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Atom IDs referenced by this atom"
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            }
+        },
+        {
+            "name": "dwbase.ask",
+            "description": "Ask a question within a world and return supporting atoms.",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "world_key",
+                    "text"
+                ],
+                "properties": {
+                    "world_key": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "filter": {
+                        "type": "object",
+                        "properties": {
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "kinds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "observation",
+                                        "reflection",
+                                        "plan",
+                                        "action",
+                                        "message"
+                                    ]
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "flag_filter": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "since": {
+                                "type": "string",
+                                "description": "RFC3339 timestamp"
+                            },
+                            "until": {
+                                "type": "string",
+                                "description": "RFC3339 timestamp"
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "world_key",
+                    "text",
+                    "supporting_atoms"
+                ],
+                "properties": {
+                    "world_key": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "supporting_atoms": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/atom"
+                        }
+                    }
+                },
+                "definitions": {
+                    "atom": {
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "world_key",
+                            "worker",
+                            "kind",
+                            "timestamp",
+                            "importance",
+                            "payload_json",
+                            "flags_list",
+                            "labels",
+                            "links"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "worker": {
+                                "type": "string"
+                            },
+                            "kind": {
+                                "type": "string",
+                                "enum": [
+                                    "observation",
+                                    "reflection",
+                                    "plan",
+                                    "action",
+                                    "message"
+                                ]
+                            },
+                            "timestamp": {
+                                "type": "string"
+                            },
+                            "importance": {
+                                "type": "number"
+                            },
+                            "payload_json": {
+                                "type": "string"
+                            },
+                            "vector": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            },
+                            "flags_list": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "links": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.replay",
+            "description": "Replay atoms for a world with optional filters.",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "target_world"
+                ],
+                "properties": {
+                    "target_world": {
+                        "type": "string"
+                    },
+                    "filter": {
+                        "type": "object",
+                        "properties": {
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "kinds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "observation",
+                                        "reflection",
+                                        "plan",
+                                        "action",
+                                        "message"
+                                    ]
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "flag_filter": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "since": {
+                                "type": "string"
+                            },
+                            "until": {
+                                "type": "string"
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/atom"
+                },
+                "definitions": {
+                    "atom": {
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "world_key",
+                            "worker",
+                            "kind",
+                            "timestamp",
+                            "importance",
+                            "payload_json",
+                            "flags_list",
+                            "labels",
+                            "links"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "worker": {
+                                "type": "string"
+                            },
+                            "kind": {
+                                "type": "string",
+                                "enum": [
+                                    "observation",
+                                    "reflection",
+                                    "plan",
+                                    "action",
+                                    "message"
+                                ]
+                            },
+                            "timestamp": {
+                                "type": "string"
+                            },
+                            "importance": {
+                                "type": "number"
+                            },
+                            "payload_json": {
+                                "type": "string"
+                            },
+                            "vector": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            },
+                            "flags_list": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "links": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.world.list",
+            "description": "List worlds known to the engine.",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {}
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        {
+            "name": "dwbase.observe_start",
+            "description": "Start an observe stream for a given filter; returns a handle.",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "filter"
+                ],
+                "properties": {
+                    "filter": {
+                        "type": "object",
+                        "properties": {
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "kinds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "observation",
+                                        "reflection",
+                                        "plan",
+                                        "action",
+                                        "message"
+                                    ]
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "flag_filter": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "since": {
+                                "type": "string"
+                            },
+                            "until": {
+                                "type": "string"
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "handle"
+                ],
+                "properties": {
+                    "handle": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.observe_poll",
+            "description": "Poll up to max atoms from an observe stream handle.",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "handle",
+                    "max"
+                ],
+                "properties": {
+                    "handle": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "max": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/atom"
+                },
+                "definitions": {
+                    "atom": {
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "world_key",
+                            "worker",
+                            "kind",
+                            "timestamp",
+                            "importance",
+                            "payload_json",
+                            "flags_list",
+                            "labels",
+                            "links"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "worker": {
+                                "type": "string"
+                            },
+                            "kind": {
+                                "type": "string",
+                                "enum": [
+                                    "observation",
+                                    "reflection",
+                                    "plan",
+                                    "action",
+                                    "message"
+                                ]
+                            },
+                            "timestamp": {
+                                "type": "string"
+                            },
+                            "importance": {
+                                "type": "number"
+                            },
+                            "payload_json": {
+                                "type": "string"
+                            },
+                            "vector": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            },
+                            "flags_list": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "links": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.observe_stop",
+            "description": "Stop and release an observe stream handle.",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "handle"
+                ],
+                "properties": {
+                    "handle": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {}
+            }
+        },
+        {
+            "name": "dwbase.observe_stats",
+            "description": "Return per-handle observe stream stats (queue depth, drops, last event time).",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "handle"
+                ],
+                "properties": {
+                    "handle": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "handle",
+                    "queued_count",
+                    "dropped_count",
+                    "last_event_ms",
+                    "warnings"
+                ],
+                "properties": {
+                    "handle": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "queued_count": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "dropped_count": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "last_event_ms": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "warnings": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.health",
+            "description": "Return a health snapshot for operators/hosts (ready/degraded + disk + sync lag).",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {}
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "status",
+                    "message",
+                    "storage_ok",
+                    "index_ok",
+                    "disk_used_bytes",
+                    "disk_free_bytes",
+                    "disk_total_bytes",
+                    "disk_used_percent",
+                    "disk_pressure",
+                    "sync_lag_ms",
+                    "quarantine_count"
+                ],
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "ready",
+                            "degraded"
+                        ]
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "storage_ok": {
+                        "type": "boolean"
+                    },
+                    "index_ok": {
+                        "type": "boolean"
+                    },
+                    "disk_used_bytes": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "disk_free_bytes": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "disk_total_bytes": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "disk_used_percent": {
+                        "type": "number",
+                        "minimum": 0
+                    },
+                    "disk_pressure": {
+                        "type": "string",
+                        "enum": [
+                            "unknown",
+                            "ok",
+                            "warn",
+                            "degraded"
+                        ]
+                    },
+                    "sync_lag_ms": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "quarantine_count": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.remember_v2",
+            "description": "Persist a new atom into a world (v2: structured errors).",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "world_key",
+                    "worker",
+                    "kind",
+                    "timestamp",
+                    "importance",
+                    "payload_json"
+                ],
+                "properties": {
+                    "world_key": {
+                        "type": "string"
+                    },
+                    "worker": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string",
+                        "enum": [
+                            "observation",
+                            "reflection",
+                            "plan",
+                            "action",
+                            "message"
+                        ]
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "description": "RFC3339 timestamp (empty string = now)"
+                    },
+                    "importance": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    },
+                    "payload_json": {
+                        "type": "string",
+                        "description": "Opaque JSON payload"
+                    },
+                    "vector": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    "flags_list": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    },
+                    "labels": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    },
+                    "links": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Atom IDs referenced by this atom"
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "ok"
+                        ],
+                        "properties": {
+                            "ok": {
+                                "type": "object",
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "err"
+                        ],
+                        "properties": {
+                            "err": {
+                                "$ref": "#/definitions/tool_error"
+                            }
+                        }
+                    }
+                ],
+                "definitions": {
+                    "tool_error": {
+                        "type": "object",
+                        "required": [
+                            "code",
+                            "message"
+                        ],
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            },
+                            "details_json": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.ask_v2",
+            "description": "Ask a question within a world and return supporting atoms (v2: warnings + structured errors).",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "world_key",
+                    "text"
+                ],
+                "properties": {
+                    "world_key": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "filter": {
+                        "type": "object",
+                        "properties": {
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "kinds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "observation",
+                                        "reflection",
+                                        "plan",
+                                        "action",
+                                        "message"
+                                    ]
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "flag_filter": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "since": {
+                                "type": "string",
+                                "description": "RFC3339 timestamp"
+                            },
+                            "until": {
+                                "type": "string",
+                                "description": "RFC3339 timestamp"
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "ok"
+                        ],
+                        "properties": {
+                            "ok": {
+                                "type": "object",
+                                "required": [
+                                    "world_key",
+                                    "text",
+                                    "supporting_atoms",
+                                    "warnings"
+                                ],
+                                "properties": {
+                                    "world_key": {
+                                        "type": "string"
+                                    },
+                                    "text": {
+                                        "type": "string"
+                                    },
+                                    "supporting_atoms": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/definitions/atom"
+                                        }
+                                    },
+                                    "warnings": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "err"
+                        ],
+                        "properties": {
+                            "err": {
+                                "$ref": "#/definitions/tool_error"
+                            }
+                        }
+                    }
+                ],
+                "definitions": {
+                    "tool_error": {
+                        "type": "object",
+                        "required": [
+                            "code",
+                            "message"
+                        ],
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            },
+                            "details_json": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    },
+                    "atom": {
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "world_key",
+                            "worker",
+                            "kind",
+                            "timestamp",
+                            "importance",
+                            "payload_json",
+                            "flags_list",
+                            "labels",
+                            "links"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "worker": {
+                                "type": "string"
+                            },
+                            "kind": {
+                                "type": "string",
+                                "enum": [
+                                    "observation",
+                                    "reflection",
+                                    "plan",
+                                    "action",
+                                    "message"
+                                ]
+                            },
+                            "timestamp": {
+                                "type": "string"
+                            },
+                            "importance": {
+                                "type": "number"
+                            },
+                            "payload_json": {
+                                "type": "string"
+                            },
+                            "vector": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            },
+                            "flags_list": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "links": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.observe_start_v2",
+            "description": "Start an observe stream (v2: structured errors).",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "filter"
+                ],
+                "properties": {
+                    "filter": {
+                        "type": "object",
+                        "properties": {
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "kinds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "observation",
+                                        "reflection",
+                                        "plan",
+                                        "action",
+                                        "message"
+                                    ]
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "flag_filter": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "since": {
+                                "type": "string"
+                            },
+                            "until": {
+                                "type": "string"
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "ok"
+                        ],
+                        "properties": {
+                            "ok": {
+                                "type": "object",
+                                "required": [
+                                    "handle"
+                                ],
+                                "properties": {
+                                    "handle": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "err"
+                        ],
+                        "properties": {
+                            "err": {
+                                "$ref": "#/definitions/tool_error"
+                            }
+                        }
+                    }
+                ],
+                "definitions": {
+                    "tool_error": {
+                        "type": "object",
+                        "required": [
+                            "code",
+                            "message"
+                        ],
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            },
+                            "details_json": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.observe_poll_v2",
+            "description": "Poll atoms from an observe stream handle (v2: structured errors).",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "handle",
+                    "max"
+                ],
+                "properties": {
+                    "handle": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "max": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "ok"
+                        ],
+                        "properties": {
+                            "ok": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/atom"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "err"
+                        ],
+                        "properties": {
+                            "err": {
+                                "$ref": "#/definitions/tool_error"
+                            }
+                        }
+                    }
+                ],
+                "definitions": {
+                    "tool_error": {
+                        "type": "object",
+                        "required": [
+                            "code",
+                            "message"
+                        ],
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            },
+                            "details_json": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    },
+                    "atom": {
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "world_key",
+                            "worker",
+                            "kind",
+                            "timestamp",
+                            "importance",
+                            "payload_json",
+                            "flags_list",
+                            "labels",
+                            "links"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "world_key": {
+                                "type": "string"
+                            },
+                            "worker": {
+                                "type": "string"
+                            },
+                            "kind": {
+                                "type": "string",
+                                "enum": [
+                                    "observation",
+                                    "reflection",
+                                    "plan",
+                                    "action",
+                                    "message"
+                                ]
+                            },
+                            "timestamp": {
+                                "type": "string"
+                            },
+                            "importance": {
+                                "type": "number"
+                            },
+                            "payload_json": {
+                                "type": "string"
+                            },
+                            "vector": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            },
+                            "flags_list": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "labels": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "links": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.observe_stop_v2",
+            "description": "Stop and release an observe stream handle (v2: structured errors).",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "handle"
+                ],
+                "properties": {
+                    "handle": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "ok"
+                        ],
+                        "properties": {
+                            "ok": {
+                                "type": "object",
+                                "required": [
+                                    "stopped"
+                                ],
+                                "properties": {
+                                    "stopped": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "err"
+                        ],
+                        "properties": {
+                            "err": {
+                                "$ref": "#/definitions/tool_error"
+                            }
+                        }
+                    }
+                ],
+                "definitions": {
+                    "tool_error": {
+                        "type": "object",
+                        "required": [
+                            "code",
+                            "message"
+                        ],
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            },
+                            "details_json": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "dwbase.health_v2",
+            "description": "Return a health snapshot (v2: structured errors).",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {}
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "ok"
+                        ],
+                        "properties": {
+                            "ok": {
+                                "type": "object",
+                                "required": [
+                                    "status",
+                                    "message",
+                                    "storage_ok",
+                                    "index_ok",
+                                    "disk_used_bytes",
+                                    "disk_free_bytes",
+                                    "disk_total_bytes",
+                                    "disk_used_percent",
+                                    "disk_pressure",
+                                    "sync_lag_ms",
+                                    "quarantine_count"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "ready",
+                                            "degraded"
+                                        ]
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    },
+                                    "storage_ok": {
+                                        "type": "boolean"
+                                    },
+                                    "index_ok": {
+                                        "type": "boolean"
+                                    },
+                                    "disk_used_bytes": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    },
+                                    "disk_free_bytes": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    },
+                                    "disk_total_bytes": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    },
+                                    "disk_used_percent": {
+                                        "type": "number",
+                                        "minimum": 0
+                                    },
+                                    "disk_pressure": {
+                                        "type": "string",
+                                        "enum": [
+                                            "unknown",
+                                            "ok",
+                                            "warn",
+                                            "degraded"
+                                        ]
+                                    },
+                                    "sync_lag_ms": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    },
+                                    "quarantine_count": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "err"
+                        ],
+                        "properties": {
+                            "err": {
+                                "$ref": "#/definitions/tool_error"
+                            }
+                        }
+                    }
+                ],
+                "definitions": {
+                    "tool_error": {
+                        "type": "object",
+                        "required": [
+                            "code",
+                            "message"
+                        ],
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            },
+                            "details_json": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        ,
+        {
+            "name": "dwbase.observe_stats_v2",
+            "description": "Return per-handle observe stream stats (v2: structured errors).",
+            "input_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "required": [
+                    "handle"
+                ],
+                "properties": {
+                    "handle": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                }
+            },
+            "output_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "ok"
+                        ],
+                        "properties": {
+                            "ok": {
+                                "type": "object",
+                                "required": [
+                                    "handle",
+                                    "queued_count",
+                                    "dropped_count",
+                                    "last_event_ms",
+                                    "warnings"
+                                ],
+                                "properties": {
+                                    "handle": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    },
+                                    "queued_count": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    },
+                                    "dropped_count": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    },
+                                    "last_event_ms": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    },
+                                    "warnings": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "err"
+                        ],
+                        "properties": {
+                            "err": {
+                                "$ref": "#/definitions/tool_error"
+                            }
+                        }
+                    }
+                ],
+                "definitions": {
+                    "tool_error": {
+                        "type": "object",
+                        "required": [
+                            "code",
+                            "message"
+                        ],
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            },
+                            "details_json": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+[package]
+name = "dwbase-security"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+dwbase-core = { path = "../dwbase-core" }
+dwbase-engine = { path = "../dwbase-engine" }
+serde.workspace = true
+thiserror.workspace = true

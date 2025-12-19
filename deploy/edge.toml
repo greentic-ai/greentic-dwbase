@@ -1,0 +1,17 @@
+[node]
+# Bind to all interfaces for edge devices if needed; adjust as required.
+listen = "0.0.0.0:8080"
+data_dir = ".dwbase/edge/data"
+embedder = "dummy"
+
+[node.security]
+# Restrict to specific worlds on constrained devices
+read_worlds = []
+write_worlds = []
+importance_cap = 0.8
+remember_per_sec = 2
+ask_per_min = 30
+
+[node.health]
+disk_usage_degraded = 0.85
+# Offline-friendly: keep data dir on persistent volume; set DWBASE_MAX_RAM_MB/DWBASE_MAX_DISK_MB to cap usage.

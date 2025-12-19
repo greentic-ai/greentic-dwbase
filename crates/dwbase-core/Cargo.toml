@@ -1,0 +1,19 @@
+[package]
+name = "dwbase-core"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[features]
+default = ["bincode"]
+bincode = ["dep:bincode"]
+rmp-serde = ["dep:rmp-serde"]
+
+[dependencies]
+serde.workspace = true
+bincode = { workspace = true, optional = true }
+rmp-serde = { workspace = true, optional = true }
+thiserror.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

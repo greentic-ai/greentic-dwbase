@@ -1,0 +1,12 @@
+[node]
+listen = "127.0.0.1:8080"
+data_dir = "./demo/data"
+embedder = "dummy"
+
+[node.security]
+# Empty lists => allow all worlds
+read_worlds = []
+write_worlds = []
+importance_cap = 1.0
+remember_per_sec = 100
+ask_per_min = 600

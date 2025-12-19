@@ -1,0 +1,127 @@
+name: Release (OCI Artifacts)
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Add wasm target
+        run: rustup target add wasm32-wasip2
+
+      - name: Build component + pack
+        run: ./packs/dwbase-memory/build.sh
+
+      - name: Setup ORAS
+        uses: oras-project/setup-oras@v1
+
+      - name: Publish OCI artifacts + lockfiles
+        env:
+          TAG: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          ./tools/publish_components_oci.sh \
+            --component-wasm target/wasm32-wasip2/release/component_dwbase.wasm \
+            --component-manifest crates/component-dwbase/component.manifest.json \
+            --pack packs/dwbase-memory/dist/dwbase-memory.gtpack \
+            --out-dir dist
+
+      - name: Upload lockfiles
+        uses: actions/upload-artifact@v4
+        with:
+          name: lockfiles
+          path: |
+            dist/components.lock.json
+            dist/packs.lock.json
+
+      - name: Upload pack artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dwbase-memory.gtpack
+          path: packs/dwbase-memory/dist/dwbase-memory.gtpack
+
+  cli-binaries:
+    name: Build CLI binaries (${{ matrix.target }})
+    needs: publish
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+            bin: dwbase
+          - os: macos-13
+            target: x86_64-apple-darwin
+            archive: tar.gz
+            bin: dwbase
+          - os: macos-14
+            target: aarch64-apple-darwin
+            archive: tar.gz
+            bin: dwbase
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: zip
+            bin: dwbase.exe
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Build CLI
+        run: cargo build --release -p dwbase-cli --target ${{ matrix.target }}
+
+      - name: Package artifact
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          ARCHIVE: ${{ matrix.archive }}
+          BIN_NAME: ${{ matrix.bin }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          VERSION="${VERSION#v}"
+          echo "PKG_VERSION=${VERSION}" >> "$GITHUB_ENV"
+          mkdir -p dist
+          STAGE="dist/dwbase-${VERSION}-${TARGET}"
+          mkdir -p "$STAGE"
+          if [[ "$ARCHIVE" == "zip" ]]; then
+            cp "target/${TARGET}/release/${BIN_NAME}" "$STAGE/${BIN_NAME}"
+            (cd dist && zip -r "dwbase-${VERSION}-${TARGET}.zip" "dwbase-${VERSION}-${TARGET}")
+          else
+            cp "target/${TARGET}/release/${BIN_NAME}" "$STAGE/${BIN_NAME}"
+            tar -C dist -czf "dwbase-${VERSION}-${TARGET}.tar.gz" "dwbase-${VERSION}-${TARGET}"
+          fi
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/dwbase-*-${{ matrix.target }}.${{ matrix.archive }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

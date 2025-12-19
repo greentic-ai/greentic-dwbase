@@ -1,0 +1,9 @@
+[package]
+name = "dwbase-wit-guest"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+serde.workspace = true
+wit-parser.workspace = true

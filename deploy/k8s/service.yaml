@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dwbase
+spec:
+  selector:
+    app: dwbase
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dwbase-metrics
+spec:
+  selector:
+    app: dwbase
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: 8080

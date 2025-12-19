@@ -1,0 +1,24 @@
+[package]
+name = "dwbase-bench"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+anyhow = "1.0.89"
+criterion = { version = "0.5.1", features = ["async_tokio"] }
+dwbase-core = { path = "../dwbase-core" }
+dwbase-engine = { path = "../dwbase-engine", features = ["tokio"] }
+dwbase-security = { path = "../dwbase-security" }
+dwbase-storage-sled = { path = "../dwbase-storage-sled" }
+dwbase-stream-local = { path = "../dwbase-stream-local" }
+dwbase-vector-hnsw = { path = "../dwbase-vector-hnsw" }
+tempfile = "3.13.0"
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread", "time"] }
+
+[dev-dependencies]
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread", "time"] }
+
+[[bench]]
+name = "engine"
+harness = false

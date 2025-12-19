@@ -1,0 +1,11 @@
+[package]
+name = "dwbase-embedder-dummy"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+dwbase-engine = { path = "../dwbase-engine" }
+
+[dev-dependencies]
+tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }

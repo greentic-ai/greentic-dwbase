@@ -1,0 +1,16 @@
+[package]
+name = "dwbase-vector-hnsw"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+dwbase-core = { path = "../dwbase-core" }
+dwbase-engine = { path = "../dwbase-engine" }
+hnsw_rs = { workspace = true }
+serde.workspace = true
+thiserror.workspace = true
+num_cpus.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

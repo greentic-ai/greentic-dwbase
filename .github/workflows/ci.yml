@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Format check
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Tests
+        run: cargo test
+
+      - name: Install wasm32-wasip2 target
+        run: rustup target add wasm32-wasip2
+
+      - name: Build component (wasm32-wasip2)
+        run: cargo build -p component-dwbase --target wasm32-wasip2
+
+      - name: Build dwbase-memory pack
+        run: ./packs/dwbase-memory/build.sh
+
+      - name: Schema/manifest sync check
+        run: python3 tools/check_schema_sync.py

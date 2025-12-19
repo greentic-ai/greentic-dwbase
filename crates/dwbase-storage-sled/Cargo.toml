@@ -1,0 +1,26 @@
+[package]
+name = "dwbase-storage-sled"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[features]
+default = ["bincode"]
+bincode = ["dep:bincode"]
+
+[dependencies]
+dwbase-core = { path = "../dwbase-core" }
+dwbase-engine = { path = "../dwbase-engine" }
+sled = "0.34.7"
+bincode = { workspace = true, optional = true }
+thiserror.workspace = true
+crc32fast = "1.4.2"
+serde = { workspace = true, features = ["derive"] }
+time.workspace = true
+aes-gcm = "0.10.3"
+rand = "0.8.5"
+hex = "0.4.3"
+sha2 = "0.10.8"
+
+[dev-dependencies]
+tempfile = "3.12.0"

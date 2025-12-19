@@ -1,0 +1,11 @@
+target
+ci
+.git
+.github
+*.log
+node_modules
+data
+deploy
+docs
+*.tzst
+*.tgz

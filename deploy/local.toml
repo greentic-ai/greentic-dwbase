@@ -1,0 +1,17 @@
+[node]
+# Single-node local development. Keep data under DWBASE_DATA_DIR (default: .dwbase).
+listen = "127.0.0.1:8080"
+data_dir = ".dwbase/local/data"
+embedder = "dummy"
+
+[node.security]
+# Permissive defaults for local play; tighten for shared hosts.
+read_worlds = []
+write_worlds = []
+importance_cap = 1.0
+remember_per_sec = 10
+ask_per_min = 60
+
+[node.health]
+disk_usage_degraded = 0.9
+# Resource caps: set env DWBASE_MAX_RAM_MB / DWBASE_MAX_DISK_MB (best-effort).

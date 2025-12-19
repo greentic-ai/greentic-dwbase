@@ -1,0 +1,15 @@
+[package]
+name = "dwbase-pack-runner"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+anyhow = "1.0.89"
+clap = { version = "4.5.20", features = ["derive"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+tempfile = "3.12.0"
+
+component-dwbase = { path = "../component-dwbase" }
+

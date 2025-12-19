@@ -1,0 +1,52 @@
+{
+  "apiVersion": "greentic.flow/v1",
+  "kind": "Flow",
+  "name": "memory_demo",
+  "description": "Demo flow: remember key facts from input, ask memory, then replay recent facts to verify persistence.",
+  "inputs": {
+    "user_text": {
+      "type": "string",
+      "description": "User message or conversation chunk to store and respond to."
+    }
+  },
+  "steps": [
+    {
+      "id": "remember_facts",
+      "op": "dwbase.remember_v2",
+      "with": {
+        "world_key": "tenant:demo/facts",
+        "worker": "llm",
+        "kind": "observation",
+        "timestamp": "",
+        "importance": 0.6,
+        "payload_json": "{\"text\": \"${inputs.user_text}\"}",
+        "flags_list": [],
+        "labels": [],
+        "links": []
+      }
+    },
+    {
+      "id": "ask_memory",
+      "op": "dwbase.ask_v2",
+      "with": {
+        "world_key": "tenant:demo/facts",
+        "text": "What key facts do we already know?",
+        "filter": {
+          "world_key": "tenant:demo/facts",
+          "limit": 10
+        }
+      }
+    },
+    {
+      "id": "replay_recent",
+      "op": "dwbase.replay",
+      "with": {
+        "target_world": "tenant:demo/facts",
+        "filter": {
+          "world_key": "tenant:demo/facts",
+          "limit": 50
+        }
+      }
+    }
+  ]
+}

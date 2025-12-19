@@ -1,0 +1,17 @@
+[node]
+# Port is overridden per-node by the deploy tool (base-port + index).
+# Data dir is rewritten per node to .dwbase/devnet/<node>/data by the deploy helper.
+listen = "127.0.0.1:7000"
+data_dir = ".dwbase/devnet/node-template"
+embedder = "dummy"
+
+[node.security]
+read_worlds = []
+write_worlds = []
+importance_cap = 1.0
+remember_per_sec = 20
+ask_per_min = 120
+
+[node.health]
+disk_usage_degraded = 0.9
+# Resource caps: set env DWBASE_MAX_RAM_MB / DWBASE_MAX_DISK_MB (best-effort).

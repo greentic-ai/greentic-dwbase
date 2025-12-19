@@ -1,0 +1,13 @@
+# Generated build artifacts
+target/
+data/
+config.toml
+dist/
+
+# Editor and OS metadata
+.DS_Store
+.idea/
+.vscode/
+
+# Logs
+*.log
