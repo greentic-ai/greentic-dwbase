@@ -52,6 +52,48 @@ dwbase list-worlds
 
 Expected ask output (pretty JSON): supporting atoms sorted by timestamp, then importance; `text` is `"answer-pending"` because the engine returns raw supporting atoms.
 
+## Concepts in action
+- **Atom shape** (immutable): 
+  ```json
+  {"id":"atom-123","world":"demo","worker":"cli","kind":"observation","timestamp":"2024-01-01T00:00:01Z","importance":0.7,"payload_json":"{\"text\":\"checkout latency 820ms\"}","vector":null,"flags":["hot"],"labels":["latency"],"links":["incident-42"]}
+  ```
+- **Remember** (creates an atom, auto-fills timestamp if empty):
+  ```bash
+  dwbase remember demo --kind observation --importance 0.9 --payload-json '{"text":"web latency 820ms"}'
+  ```
+- **Ask** (recency-first, importance-second; uses reflex index + optional ANN):
+  ```bash
+  dwbase ask demo --question "what happened to checkout?"
+  ```
+  Returns supporting atoms; you decide how to answer.
+- **Replay** (ordered scan with filters):
+  ```bash
+  dwbase replay demo --limit 20 --since "2024-01-01T00:00:00Z" --flags hot
+  ```
+- **Observe streams** (subscribe without storing):
+  ```bash
+  dwbase observe-start demo --kinds observation --labels latency
+  dwbase observe-poll 1 --max 10
+  ```
+  Streams are bounded with backpressure; duplicates are dropped via per-peer replay protection.
+- **Metrics snapshot** (WASI-friendly):
+  ```bash
+  dwbase metrics-snapshot   # or call the component op to get JSON + Prom text
+  ```
+
+## Swarms: how nodes find and trust each other
+- Enable presence/replication: set `DWBASE_SWARM_ENABLE=1` (component) or configure NATS in node env (`NATS_URL=...`). For offline demos, use `DWBASE_SWARM_MOCK=1`.
+- Discovery: nodes broadcast on `dwbase.node.hello`, keep a TTL peer table, and persist swarm state to `<DATA_DIR>/swarm.json` so membership survives restarts.
+- Subscriptions: set `DWBASE_SUBSCRIBE_WORLDS=demo,tenant:*` to declare what you want; peers only send worlds you’re allowed to receive (policy-aware filters in `dwbase-swarm-nats`).
+- Replay protection/backpressure: inboxes are bounded; per-peer counters drop duplicates and stale batches.
+- Current state: presence + capability-aware replication skeleton are implemented; full multi-node consistency/ANN sync/quarantine is intentionally out of scope for v1.
+
+## Ignoring bad digital workers (isolation)
+- Capabilities: configure `read_worlds` / `write_worlds` and importance caps in `config.toml` to fence what a worker can touch; out-of-policy writes are rejected.
+- Rate limits: per-worker remember/ask rate caps protect hot paths.
+- Replication policy: allow/deny prefixes (`replication_allow`/`replication_deny`) gate what peers can send/receive.
+- Not yet: automated “quarantine” of misbehaving workers is a planned future addition; today enforcement is via the caps above and operator policy atoms.
+
 ## Concepts (v1)
 - **Atom:** immutable record with `id`, `world`, `worker`, `kind`, ISO-8601 `timestamp`, `importance` (0.0–1.0), `payload_json` string, optional vector, flags/labels/links.
 - **World:** namespace for atoms (e.g., `incident:42`); storage, vector, and streams are world-scoped.

@@ -22,7 +22,7 @@ serde_json.workspace = true
 time.workspace = true
 once_cell = "1.20.2"
 metrics = { workspace = true }
-metrics-exporter-prometheus = "0.13.1"
+metrics-exporter-prometheus = { version = "0.13.1", default-features = false }
 wit-bindgen = "0.27.0"
 futures = "0.3.30"
 dwbase-swarm-nats = { path = "../dwbase-swarm-nats" }

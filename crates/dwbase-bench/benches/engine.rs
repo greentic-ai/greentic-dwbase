@@ -1,5 +1,4 @@
 use std::sync::Arc;
-use std::time::Duration;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use dwbase_core::{Atom, AtomId, AtomKind, Importance, Timestamp, WorkerKey, WorldKey};
