@@ -16,9 +16,6 @@ nats = ["dwbase-swarm-nats/nats"]
 [lib]
 crate-type = ["rlib"]
 
-[target.'cfg(target_arch = "wasm32")'.lib]
-crate-type = ["cdylib", "rlib"]
-
 [dependencies]
 dwbase-core = { workspace = true }
 dwbase-engine = { workspace = true }
