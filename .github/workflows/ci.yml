@@ -44,8 +44,8 @@ jobs:
 
       - name: Stage manifest + hashes
         run: |
-          COMPONENT_WASM=target/wasm32-wasip2/release/component_dwbase.wasm
-          COMPONENT_MANIFEST=target/wasm32-wasip2/release/component.manifest.json
+          COMPONENT_WASM="$GITHUB_WORKSPACE/target/wasm32-wasip2/release/component_dwbase.wasm"
+          COMPONENT_MANIFEST="$GITHUB_WORKSPACE/target/wasm32-wasip2/release/component.manifest.json"
           cp crates/component-dwbase/component.manifest.json "$COMPONENT_MANIFEST"
           greentic-component hash --wasm "$COMPONENT_WASM" "$COMPONENT_MANIFEST"
           mkdir -p packs/dwbase-gtpack/components
