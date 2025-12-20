@@ -10,7 +10,7 @@ fi
 
 if [[ "${CARGO_NET_OFFLINE:-}" != "true" ]]; then
   echo "==> install greentic tools (if missing)"
-  command -v greentic-component >/dev/null 2>&1 || cargo install greentic-component --version 0.4
+  command -v greentic-component >/dev/null 2>&1 || cargo install greentic-component --version '^0.4'
   command -v packc >/dev/null 2>&1 || cargo install packc --version 0.4
   command -v cargo-component >/dev/null 2>&1 || cargo install cargo-component --version 0.21
 else
