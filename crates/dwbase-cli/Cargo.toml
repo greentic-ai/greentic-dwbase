@@ -13,14 +13,14 @@ name = "dwbase"
 path = "src/main.rs"
 
 [package.metadata.binstall]
-pkg-url = "https://github.com/agentic/greentic-dwbase/releases/download/v{ version }/dwbase-{ version }-{ target }.tar.gz"
+pkg-url = "https://github.com/greentic-ai/greentic-dwbase/releases/download/v{ version }/dwbase-{ version }-{ target }.tar.gz"
 pkg-fmt = "tgz"
 bin-dir = "."
 bin = ["dwbase"]
 
 [[package.metadata.binstall.pkg]]
 target = "x86_64-pc-windows-msvc"
-pkg-url = "https://github.com/agentic/greentic-dwbase/releases/download/v{ version }/dwbase-{ version }-{ target }.zip"
+pkg-url = "https://github.com/greentic-ai/greentic-dwbase/releases/download/v{ version }/dwbase-{ version }-{ target }.zip"
 pkg-fmt = "zip"
 
 [dependencies]

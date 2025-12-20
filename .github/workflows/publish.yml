@@ -44,6 +44,7 @@ jobs:
         env:
           CARGO_REGISTRIES_CRATES_IO_TOKEN: ${{ secrets.CARGO_TOKEN }}
         run: |
+          chmod +x ci/publish-crates.sh
           ./ci/publish-crates.sh || true
 
       - name: Create/Update GitHub Release

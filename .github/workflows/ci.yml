@@ -65,14 +65,14 @@ jobs:
 
       - name: Pack verify
         run: |
-          MANIFEST=packs/dwbase-gtpack/dist/manifest.cbor
+          MANIFEST="$GITHUB_WORKSPACE/packs/dwbase-gtpack/dist/manifest.cbor"
           if [ -f "$MANIFEST" ]; then
-            DEV_KEY=packs/dwbase-gtpack/dist/dev-component.key
-            DEV_PUB=packs/dwbase-gtpack/dist/dev-component.pub
+            DEV_KEY="$GITHUB_WORKSPACE/packs/dwbase-gtpack/dist/dev-component.key"
+            DEV_PUB="$GITHUB_WORKSPACE/packs/dwbase-gtpack/dist/dev-component.pub"
             openssl genpkey -algorithm Ed25519 -out "$DEV_KEY"
             openssl pkey -in "$DEV_KEY" -pubout -out "$DEV_PUB"
-            packc sign --pack packs/dwbase-gtpack --manifest "$MANIFEST" --key "$DEV_KEY" --offline
-            packc verify --pack packs/dwbase-gtpack --manifest "$MANIFEST" --key "$DEV_PUB" --offline
+            packc sign --pack "$GITHUB_WORKSPACE/packs/dwbase-gtpack" --manifest "$MANIFEST" --key "$DEV_KEY" --offline
+            packc verify --pack "$GITHUB_WORKSPACE/packs/dwbase-gtpack" --manifest "$MANIFEST" --key "$DEV_PUB" --offline
           else
             echo "pack manifest not found, skipping packc verify"
           fi
