@@ -12,6 +12,14 @@ if [[ "${1:-}" == "--dry-run" ]]; then
   DRYRUN="--dry-run"
 fi
 
+# Prefer explicit token if provided; cargo will also honor ~/.cargo/credentials.
+TOKEN_ARG=""
+if [[ -n "${CARGO_REGISTRY_TOKEN:-}" ]]; then
+  TOKEN_ARG="--token ${CARGO_REGISTRY_TOKEN}"
+elif [[ -n "${CARGO_REGISTRIES_CRATES_IO_TOKEN:-}" ]]; then
+  TOKEN_ARG="--token ${CARGO_REGISTRIES_CRATES_IO_TOKEN}"
+fi
+
 CRATES=(
   dwbase-core
   dwbase-metrics
@@ -33,9 +41,9 @@ for crate in "${CRATES[@]}"; do
   echo "==> publishing ${crate} ${DRYRUN}"
   set +e
   if [[ "${crate}" == "component-dwbase" ]]; then
-    OUTPUT=$(CARGO_BUILD_TARGET=wasm32-wasip2 cargo publish -p "${crate}" ${DRYRUN} 2>&1)
+    OUTPUT=$(CARGO_BUILD_TARGET=wasm32-wasip2 cargo publish -p "${crate}" ${DRYRUN} ${TOKEN_ARG} 2>&1)
   else
-    OUTPUT=$(cargo publish -p "${crate}" ${DRYRUN} 2>&1)
+    OUTPUT=$(cargo publish -p "${crate}" ${DRYRUN} ${TOKEN_ARG} 2>&1)
   fi
   STATUS=$?
   set -e
