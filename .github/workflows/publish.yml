@@ -30,7 +30,7 @@ jobs:
       - name: Install greentic tools
         run: |
           cargo install greentic-component --version '^0.4'
-          cargo install packc --version 0.4
+          cargo install packc --version '^0.4'
 
       - name: Show workspace version
         id: version
