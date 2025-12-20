@@ -70,11 +70,11 @@ jobs:
             target: x86_64-unknown-linux-gnu
             archive: tar.gz
             bin: dwbase
-          - os: macos-13
+          - os: macos-15
             target: x86_64-apple-darwin
             archive: tar.gz
             bin: dwbase
-          - os: macos-14
+          - os: macos-15
             target: aarch64-apple-darwin
             archive: tar.gz
             bin: dwbase
@@ -97,7 +97,8 @@ jobs:
       - name: Build CLI
         run: cargo build --release -p dwbase-cli --target ${{ matrix.target }}
 
-      - name: Package artifact
+      - name: Package artifact (unix)
+        if: runner.os != 'Windows'
         shell: bash
         env:
           TARGET: ${{ matrix.target }}
@@ -110,13 +111,25 @@ jobs:
           mkdir -p dist
           STAGE="dist/dwbase-${VERSION}-${TARGET}"
           mkdir -p "$STAGE"
-          if [[ "$ARCHIVE" == "zip" ]]; then
-            cp "target/${TARGET}/release/${BIN_NAME}" "$STAGE/${BIN_NAME}"
-            (cd dist && zip -r "dwbase-${VERSION}-${TARGET}.zip" "dwbase-${VERSION}-${TARGET}")
-          else
-            cp "target/${TARGET}/release/${BIN_NAME}" "$STAGE/${BIN_NAME}"
-            tar -C dist -czf "dwbase-${VERSION}-${TARGET}.tar.gz" "dwbase-${VERSION}-${TARGET}"
-          fi
+          cp "target/${TARGET}/release/${BIN_NAME}" "$STAGE/${BIN_NAME}"
+          tar -C dist -czf "dwbase-${VERSION}-${TARGET}.tar.gz" "dwbase-${VERSION}-${TARGET}"
+
+      - name: Package artifact (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          TARGET: ${{ matrix.target }}
+          ARCHIVE: ${{ matrix.archive }}
+          BIN_NAME: ${{ matrix.bin }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          $version = "$Env:VERSION".TrimStart("v")
+          echo "PKG_VERSION=$version" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $stage = "dist/dwbase-$version-$Env:TARGET"
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+          Copy-Item "target/$Env:TARGET/release/$Env:BIN_NAME" "$stage/$Env:BIN_NAME"
+          Compress-Archive -Path "$stage/*" -DestinationPath "dist/dwbase-$version-$Env:TARGET.zip" -Force
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v1

@@ -48,5 +48,9 @@ CRATES=(
 )
 for crate in "${CRATES[@]}"; do
   echo "  -> packaging ${crate}"
-  cargo package -p "${crate}" --allow-dirty
+  if [[ "${crate}" == "component-dwbase" ]]; then
+    CARGO_BUILD_TARGET=wasm32-wasip2 cargo package -p "${crate}" --allow-dirty
+  else
+    cargo package -p "${crate}" --allow-dirty
+  fi
 done

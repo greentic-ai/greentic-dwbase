@@ -14,7 +14,7 @@ component-wasm = []
 nats = ["dwbase-swarm-nats/nats"]
 
 [lib]
-crate-type = ["rlib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 dwbase-core = { workspace = true }

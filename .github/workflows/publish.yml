@@ -14,6 +14,8 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,3 +48,88 @@ jobs:
           body: "Automated release for version v${{ steps.version.outputs.version }} (crates.io publish)."
           allowUpdates: true
           makeLatest: true
+
+  cli-binaries:
+    name: Build CLI binaries (${{ matrix.target }})
+    needs: publish
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+            bin: dwbase
+          - os: macos-15
+            target: x86_64-apple-darwin
+            archive: tar.gz
+            bin: dwbase
+          - os: macos-15
+            target: aarch64-apple-darwin
+            archive: tar.gz
+            bin: dwbase
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: zip
+            bin: dwbase.exe
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Build CLI
+        run: cargo build --release -p dwbase-cli --target ${{ matrix.target }}
+
+      - name: Package artifact (unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          BIN_NAME: ${{ matrix.bin }}
+          VERSION: ${{ needs.publish.outputs.version }}
+        run: |
+          mkdir -p dist
+          STAGE="dist/dwbase-${VERSION}-${TARGET}"
+          mkdir -p "$STAGE"
+          cp "target/${TARGET}/release/${BIN_NAME}" "$STAGE/${BIN_NAME}"
+          tar -C dist -czf "dist/dwbase-${VERSION}-${TARGET}.tar.gz" "dwbase-${VERSION}-${TARGET}"
+
+      - name: Package artifact (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          TARGET: ${{ matrix.target }}
+          BIN_NAME: ${{ matrix.bin }}
+          VERSION: ${{ needs.publish.outputs.version }}
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $stage = "dist/dwbase-$Env:VERSION-$Env:TARGET"
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+          Copy-Item "target/$Env:TARGET/release/$Env:BIN_NAME" "$stage/$Env:BIN_NAME"
+          Compress-Archive -Path "$stage/*" -DestinationPath "dist/dwbase-$Env:VERSION-$Env:TARGET.zip" -Force
+
+      - name: Upload release asset (unix)
+        if: runner.os != 'Windows'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.publish.outputs.version }}
+          files: dist/dwbase-${{ needs.publish.outputs.version }}-${{ matrix.target }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release asset (windows)
+        if: runner.os == 'Windows'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.publish.outputs.version }}
+          files: dist/dwbase-${{ needs.publish.outputs.version }}-${{ matrix.target }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
