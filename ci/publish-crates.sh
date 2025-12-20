@@ -12,6 +12,9 @@ if [[ "${1:-}" == "--dry-run" ]]; then
   DRYRUN="--dry-run"
 fi
 
+# Ensure wasm32-wasip2 target is available for component-dwbase verification.
+rustup target add wasm32-wasip2 >/dev/null
+
 # Prefer explicit token if provided; cargo will also honor ~/.cargo/credentials.
 TOKEN_ARG=""
 if [[ -n "${CARGO_REGISTRY_TOKEN:-}" ]]; then

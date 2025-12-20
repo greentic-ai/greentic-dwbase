@@ -44,6 +44,7 @@ jobs:
         env:
           CARGO_REGISTRIES_CRATES_IO_TOKEN: ${{ secrets.CARGO_TOKEN }}
         run: |
+          rustup target add wasm32-wasip2
           chmod +x ci/publish-crates.sh
           ./ci/publish-crates.sh || true
 
