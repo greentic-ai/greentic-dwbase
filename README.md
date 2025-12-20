@@ -1,11 +1,11 @@
 # DWBase Workspace
 
-DWBase is the first database built for digital workers and agentic agents—and the first one written almost entirely by an AI in ~24 hours of vibing code. It’s an immutable “atom” memory with reflex-style recall, built-in policy/metrics, WASI components, and swarm awareness.
+DWBase is the first database built for digital workers and agentic agents—and the first one written almost entirely by an AI in ~24 hours of vibing code. It’s an immutable “atom” memory with reflex-style recall, built-in policy/metrics, WASI components, and swarm awareness. The Greentic-facing story is now a proper Greentic component shim + gtpack (no more “zip a wasm”); DWBase WIT stays internal while the shim implements `greentic:component/node@0.5.0`.
 
 ## Why it’s different
 - Agent-first atoms: immutable, world-scoped records with labels/flags/links and recency-weighted recall.
 - Reflex pipeline: remember → embed (optional) → index → streams → swarm replication hooks.
-- WIT everywhere: ships a `component-dwbase` WASI world with ask/remember/replay/health/metrics for host-agnostic embedding.
+- Greentic-compatible: ships `component-dwbase` as a Greentic component (world `greentic:component/node@0.5.0`) packaged via `packc`; DWBase WIT remains internal.
 - Observe streams: backpressure-aware subscriptions with drop/backoff metrics and replay protection.
 - Storage: sled-backed append-only log with secondary indexes, repair, and retention policy hooks.
 - Vector: optional HNSW per-world ANN for reranking.
@@ -118,7 +118,8 @@ Expected ask output (pretty JSON): supporting atoms sorted by timestamp, then im
 - `crates/dwbase-cli` — HTTP client (binary name: `dwbase`).
 - `crates/dwbase-wit-host` / `crates/dwbase-wit-guest` — WIT bindings.
 - `crates/dwbase-embedder-dummy`, `dwbase-metrics`, `dwbase-swarm` — adapters and scaffolding.
-- `crates/component-dwbase` — WASI component + manifest; `packs/dwbase-memory` builds a runnable pack.
+- `crates/component-dwbase` — Greentic shim exporting `greentic:component/node@0.5.0` (DWBase APIs stay internal).
+- `packs/dwbase-gtpack` — gtpack scaffold for the Greentic component (built with `packc`; signed/verified in CI).
 
 ## Learn more
 - `docs/overview.md` — DWBase in one page.
@@ -131,4 +132,13 @@ Expected ask output (pretty JSON): supporting atoms sorted by timestamp, then im
 cargo fmt
 cargo clippy -- -D warnings
 cargo test
+
+# Greentic component + gtpack pipeline
+rustup target add wasm32-wasip2
+cargo component build -p component-dwbase --release --target wasm32-wasip2 --features component-wasm
+greentic-component doctor target/wasm32-wasip2/release/component.manifest.json
+packc build --in packs/dwbase-gtpack --gtpack-out packs/dwbase-gtpack/dist/dwbase.gtpack
+# sign/verify with your own Ed25519 keypair (packc verify requires the public key)
+packc sign --pack packs/dwbase-gtpack --manifest packs/dwbase-gtpack/dist/manifest.cbor --key <private-key>
+packc verify --pack packs/dwbase-gtpack --manifest packs/dwbase-gtpack/dist/manifest.cbor --key <public-key> --offline
 ```

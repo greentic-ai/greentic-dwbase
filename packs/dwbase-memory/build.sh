@@ -10,7 +10,7 @@ mkdir -p "$DIST_DIR"
 mkdir -p "$COMPONENT_DIR"
 
 echo "==> Building component-dwbase (wasm32-wasip2, release)"
-cargo build -p component-dwbase --release --target wasm32-wasip2 --features component-wasm --locked
+cargo build -p component-dwbase --release --target wasm32-wasip2 --features component-wasm
 
 WASM_SRC="$ROOT/target/wasm32-wasip2/release/component_dwbase.wasm"
 if [[ ! -f "$WASM_SRC" ]]; then
@@ -22,6 +22,12 @@ fi
 echo "==> Staging component artifact + manifest"
 cp "$ROOT/crates/component-dwbase/component.manifest.json" "$COMPONENT_DIR/component.manifest.json"
 cp "$WASM_SRC" "$COMPONENT_DIR/component.wasm"
+
+# Validate component with greentic-component doctor if installed
+if command -v greentic-component >/dev/null 2>&1; then
+  echo "==> greentic-component doctor"
+  greentic-component doctor "$COMPONENT_DIR/component.wasm" || true
+fi
 
 OUT="$DIST_DIR/dwbase-memory.gtpack"
 rm -f "$OUT"

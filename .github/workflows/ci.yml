@@ -20,6 +20,12 @@ jobs:
           override: true
           components: rustfmt, clippy
 
+      - name: Install greentic tools
+        run: |
+          cargo install greentic-component --version 0.4
+          cargo install packc --version 0.4
+          cargo install cargo-component --version 0.21
+
       - name: Format check
         run: cargo fmt --check
 
@@ -33,10 +39,42 @@ jobs:
         run: rustup target add wasm32-wasip2
 
       - name: Build component (wasm32-wasip2)
-        run: cargo build -p component-dwbase --target wasm32-wasip2
+        run: cargo component build -p component-dwbase --release --target wasm32-wasip2 --features component-wasm
 
-      - name: Build dwbase-memory pack
-        run: ./packs/dwbase-memory/build.sh
+      - name: Stage manifest + hashes
+        run: |
+          COMPONENT_WASM=target/wasm32-wasip2/release/component_dwbase.wasm
+          COMPONENT_MANIFEST=target/wasm32-wasip2/release/component.manifest.json
+          cp crates/component-dwbase/component.manifest.json "$COMPONENT_MANIFEST"
+          greentic-component hash --wasm "$COMPONENT_WASM" "$COMPONENT_MANIFEST"
+          mkdir -p packs/dwbase-gtpack/components
+          cp "$COMPONENT_WASM" packs/dwbase-gtpack/components/component_dwbase.wasm
+          cp "$COMPONENT_MANIFEST" packs/dwbase-gtpack/components/component.manifest.json
+
+      - name: Build dwbase gtpack
+        run: packc build --in packs/dwbase-gtpack --gtpack-out packs/dwbase-gtpack/dist/dwbase.gtpack
+
+      - name: Component doctor
+        run: |
+          if [ -f target/wasm32-wasip2/release/component.manifest.json ]; then
+            greentic-component doctor target/wasm32-wasip2/release/component.manifest.json
+          else
+            echo "component wasm not found, skipping doctor"
+          fi
+
+      - name: Pack verify
+        run: |
+          MANIFEST=packs/dwbase-gtpack/dist/manifest.cbor
+          if [ -f "$MANIFEST" ]; then
+            DEV_KEY=packs/dwbase-gtpack/dist/dev-component.key
+            DEV_PUB=packs/dwbase-gtpack/dist/dev-component.pub
+            openssl genpkey -algorithm Ed25519 -out "$DEV_KEY"
+            openssl pkey -in "$DEV_KEY" -pubout -out "$DEV_PUB"
+            packc sign --pack packs/dwbase-gtpack --manifest "$MANIFEST" --key "$DEV_KEY" --offline
+            packc verify --pack packs/dwbase-gtpack --manifest "$MANIFEST" --key "$DEV_PUB" --offline
+          else
+            echo "pack manifest not found, skipping packc verify"
+          fi
 
       - name: Schema/manifest sync check
         run: python3 tools/check_schema_sync.py

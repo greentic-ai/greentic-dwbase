@@ -1,0 +1,14 @@
+id: main
+type: messaging
+entrypoints:
+  default: {}
+nodes:
+  start:
+    dwbase.invoke:
+      op: "echo"
+      input: "{}"
+    routing:
+      - to: end
+  end:
+    dwbase.done:
+      message: "ok"

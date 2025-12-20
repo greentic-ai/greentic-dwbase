@@ -1,0 +1,27 @@
+pack_id: dwbase-component
+version: 0.1.1
+kind: application
+publisher: Greentic
+
+components:
+  - id: "dwbase-component.component"
+    version: "0.1.1"
+    world: "greentic:component/node@0.5.0"
+    supports: ["messaging"]
+    profiles:
+      default: "default"
+      supported: ["default"]
+    capabilities:
+      wasi: {}
+      host: {}
+    wasm: "components/component_dwbase.wasm"
+
+flows:
+  - id: main
+    file: flows/main.ygtc
+    tags: [default]
+    entrypoints: [default]
+
+dependencies: []
+
+assets: []

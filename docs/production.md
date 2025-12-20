@@ -1,6 +1,6 @@
 # Production Deployment Bundle (PR-30)
 
-This guide covers building the container image, deploying to Kubernetes, and rolling upgrades for dwbase-node.
+This guide covers building the container image, deploying to Kubernetes, and rolling upgrades for dwbase-node. The Greentic component/gtpack is built separately via `packc` from `packs/dwbase-gtpack` (see README/build section) when you need a Greentic-compatible artifact.
 
 ## Container build
 ```bash

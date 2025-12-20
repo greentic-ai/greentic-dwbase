@@ -100,11 +100,14 @@ impl Envelope {
     }
 
     pub fn encode(&self) -> Result<Vec<u8>> {
-        bincode::serialize(self).map_err(|e| SwarmError::Encode(e.to_string()))
+        bincode::serde::encode_to_vec(self, bincode::config::standard())
+            .map_err(|e: bincode::error::EncodeError| SwarmError::Encode(e.to_string()))
     }
 
     pub fn decode(bytes: &[u8]) -> Result<Self> {
-        bincode::deserialize(bytes).map_err(|e| SwarmError::Decode(e.to_string()))
+        bincode::serde::decode_from_slice(bytes, bincode::config::standard())
+            .map(|(v, _)| v)
+            .map_err(|e: bincode::error::DecodeError| SwarmError::Decode(e.to_string()))
     }
 }
 
@@ -783,14 +786,17 @@ mod tests {
                 EnvelopeKind::Hello,
                 hello.peer.id.clone(),
                 None,
-                bincode::serialize(&hello).unwrap(),
+                bincode::serde::encode_to_vec(&hello, bincode::config::standard()).unwrap(),
             ),
         )
         .await?;
 
         let (_, env) = t2.recv().await?;
         assert_eq!(env.kind, EnvelopeKind::Hello);
-        let decoded: Hello = bincode::deserialize(&env.payload_bytes).unwrap();
+        let decoded: Hello =
+            bincode::serde::decode_from_slice(&env.payload_bytes, bincode::config::standard())
+                .map(|(v, _)| v)
+                .unwrap();
         m2.merge_hello(decoded.clone());
         assert_eq!(m2.len(), 1);
 
@@ -814,13 +820,16 @@ mod tests {
                 EnvelopeKind::SummaryAdvert,
                 PeerId::new("node-b"),
                 Some(PeerId::new("node-a")),
-                bincode::serialize(&advert).unwrap(),
+                bincode::serde::encode_to_vec(&advert, bincode::config::standard()).unwrap(),
             ),
         )
         .await?;
         let (_, env2) = t1.recv().await?;
         assert_eq!(env2.kind, EnvelopeKind::SummaryAdvert);
-        let decoded_adv: SummaryAdvert = bincode::deserialize(&env2.payload_bytes).unwrap();
+        let decoded_adv: SummaryAdvert =
+            bincode::serde::decode_from_slice(&env2.payload_bytes, bincode::config::standard())
+                .map(|(v, _)| v)
+                .unwrap();
         catalog.upsert(decoded_adv.clone());
         m1.apply_summary_advert(&hello.peer.id, decoded_adv.clone());
 
@@ -851,14 +860,17 @@ mod tests {
                 EnvelopeKind::BloomOffer,
                 PeerId::new("node-b"),
                 Some(PeerId::new("node-a")),
-                bincode::serialize(&offer).unwrap(),
+                bincode::serde::encode_to_vec(&offer, bincode::config::standard()).unwrap(),
             ),
         )
         .await?;
 
         // A receives offer and responds with AtomBatch of missing atoms.
         let (_, env) = t_a.recv().await?;
-        let decoded: BloomOffer = bincode::deserialize(&env.payload_bytes).unwrap();
+        let decoded: BloomOffer =
+            bincode::serde::decode_from_slice(&env.payload_bytes, bincode::config::standard())
+                .map(|(v, _)| v)
+                .unwrap();
         let missing_atoms = node_a.missing_atoms(&decoded.bloom, &decoded.window);
         let batch = AtomBatch {
             world: decoded.world.clone(),
@@ -870,14 +882,17 @@ mod tests {
                 EnvelopeKind::AtomBatch,
                 PeerId::new("node-a"),
                 Some(PeerId::new("node-b")),
-                bincode::serialize(&batch).unwrap(),
+                bincode::serde::encode_to_vec(&batch, bincode::config::standard()).unwrap(),
             ),
         )
         .await?;
 
         // B ingests the batch and ends up in sync.
         let (_, env2) = t_b.recv().await?;
-        let decoded_batch: AtomBatch = bincode::deserialize(&env2.payload_bytes).unwrap();
+        let decoded_batch: AtomBatch =
+            bincode::serde::decode_from_slice(&env2.payload_bytes, bincode::config::standard())
+                .map(|(v, _)| v)
+                .unwrap();
         node_b.ingest_batch(decoded_batch);
 
         assert_eq!(node_b.atoms.len(), node_a.atoms.len());

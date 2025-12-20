@@ -1,0 +1,3 @@
+dist/
+components/*.wasm
+components/component.manifest.json

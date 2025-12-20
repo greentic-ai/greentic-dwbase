@@ -320,6 +320,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bincode"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "36eaf5d7b090263e8150820482d5d93cd964a81e4019913c972f4edcc6edb740"
+dependencies = [
+ "serde",
+ "unty",
+]
+
+[[package]]
 name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -399,6 +409,16 @@ name = "cfg_aliases"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
+
+[[package]]
+name = "chrono"
+version = "0.4.42"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "145052bdd345b87320e369255277e3fb5152762ad123a901ef5c262dd38fe8d2"
+dependencies = [
+ "num-traits",
+ "serde",
+]
 
 [[package]]
 name = "ciborium"
@@ -504,27 +524,12 @@ dependencies = [
 
 [[package]]
 name = "component-dwbase"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
- "dwbase-core",
- "dwbase-embedder-dummy",
- "dwbase-engine",
- "dwbase-metrics",
- "dwbase-security",
- "dwbase-swarm",
- "dwbase-swarm-nats",
- "fs2",
- "futures",
- "hex",
- "metrics",
- "metrics-exporter-prometheus",
- "once_cell",
- "parking_lot 0.12.5",
+ "greentic-interfaces-guest",
  "serde",
  "serde_json",
  "tempfile",
- "time",
- "wit-bindgen 0.49.0",
 ]
 
 [[package]]
@@ -712,6 +717,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "darling"
+version = "0.21.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9cdf337090841a411e2a7f3deb9187445851f91b309c0c0a29e05f74a00a48c0"
+dependencies = [
+ "darling_core",
+ "darling_macro",
+]
+
+[[package]]
+name = "darling_core"
+version = "0.21.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1247195ecd7e3c85f83c8d2a366e4210d588e802133e1e355180a9870b517ea4"
+dependencies = [
+ "fnv",
+ "ident_case",
+ "proc-macro2",
+ "quote",
+ "strsim",
+ "syn",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.21.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d38308df82d1080de0afee5d069fa14b0326a88c14f15c5ccda35b4a6c414c81"
+dependencies = [
+ "darling_core",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "data-encoding"
 version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -779,7 +819,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
 name = "dwbase-bench"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "criterion",
@@ -795,7 +835,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -824,9 +864,9 @@ dependencies = [
 
 [[package]]
 name = "dwbase-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
- "bincode",
+ "bincode 2.0.1",
  "rmp-serde",
  "serde",
  "serde_json",
@@ -835,7 +875,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-embedder-dummy"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dwbase-engine",
  "tokio",
@@ -843,7 +883,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-engine"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dwbase-core",
  "dwbase-metrics",
@@ -857,7 +897,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-metrics"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "metrics",
  "tracing",
@@ -865,7 +905,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-node"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "axum",
@@ -893,19 +933,11 @@ dependencies = [
 
 [[package]]
 name = "dwbase-pack-runner"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "component-dwbase",
- "serde",
- "serde_json",
- "tempfile",
-]
+version = "0.1.1"
 
 [[package]]
 name = "dwbase-security"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dwbase-core",
  "dwbase-engine",
@@ -915,15 +947,15 @@ dependencies = [
 
 [[package]]
 name = "dwbase-storage-sled"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aes-gcm",
- "bincode",
+ "bincode 2.0.1",
  "crc32fast",
  "dwbase-core",
  "dwbase-engine",
  "hex",
- "rand 0.8.5",
+ "rand 0.9.2",
  "serde",
  "sha2",
  "sled",
@@ -934,7 +966,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-stream-local"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dwbase-core",
  "dwbase-engine",
@@ -942,10 +974,10 @@ dependencies = [
 
 [[package]]
 name = "dwbase-swarm"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-trait",
- "bincode",
+ "bincode 2.0.1",
  "dwbase-core",
  "dwbase-engine",
  "serde",
@@ -957,11 +989,11 @@ dependencies = [
 
 [[package]]
 name = "dwbase-swarm-nats"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "async-nats",
- "bincode",
+ "bincode 2.0.1",
  "dwbase-core",
  "dwbase-engine",
  "dwbase-swarm",
@@ -969,7 +1001,7 @@ dependencies = [
  "hex",
  "once_cell",
  "parking_lot 0.12.5",
- "rand 0.8.5",
+ "rand 0.9.2",
  "serde",
  "serde_json",
  "tempfile",
@@ -979,7 +1011,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-vector-hnsw"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dwbase-core",
  "dwbase-engine",
@@ -992,21 +1024,23 @@ dependencies = [
 
 [[package]]
 name = "dwbase-wit-guest"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "serde",
- "wit-parser",
+ "serde_json",
+ "wit-parser 0.243.0",
 ]
 
 [[package]]
 name = "dwbase-wit-host"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dwbase-core",
  "dwbase-engine",
  "serde",
+ "serde_json",
  "thiserror 2.0.17",
- "wit-parser",
+ "wit-parser 0.243.0",
 ]
 
 [[package]]
@@ -1327,6 +1361,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "greentic-interfaces-guest"
+version = "0.4.65"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c4907fa23e0ec15afc267cfdf94ab71669d6df796f212ea89545a4dfb4d62729"
+dependencies = [
+ "greentic-types",
+ "wit-bindgen 0.48.1",
+ "wit-bindgen-core",
+ "wit-bindgen-rust",
+]
+
+[[package]]
+name = "greentic-types"
+version = "0.4.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76eb72861b2f6873e39424f07caffa39df037cbdba6b7004d53567c6003fdcc7"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "ciborium",
+ "fnv",
+ "indexmap",
+ "semver",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "thiserror 2.0.17",
+ "time",
+]
+
+[[package]]
 name = "h2"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1402,7 +1467,7 @@ checksum = "22884c1debedfe585612f1f6da7bfe257f557639143cac270a8ac2f8702de750"
 dependencies = [
  "anndists",
  "anyhow",
- "bincode",
+ "bincode 1.3.3",
  "cfg-if",
  "cpu-time",
  "env_logger",
@@ -1638,6 +1703,12 @@ name = "id-arena"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25a2bc672d1148e28034f176e01fffebb08b35768468cc954630da77a1449005"
+
+[[package]]
+name = "ident_case"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "idna"
@@ -2291,9 +2362,9 @@ dependencies = [
 
 [[package]]
 name = "portable-atomic"
-version = "1.11.1"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f84267b20a16ea918e43c6a88433c2d54fa145c92a811b5b047ccbe153674483"
+checksum = "f59e70c4aef1e55797c2e8fd94a4f2a973fc972cfde0e0b05f683667b0cd39dd"
 
 [[package]]
 name = "portable-atomic-util"
@@ -2785,6 +2856,10 @@ name = "semver"
 version = "1.0.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d767eb0aabc880b29956c35734170f26ed551a859dbd361d140cdbeca61ab1e2"
+dependencies = [
+ "serde",
+ "serde_core",
+]
 
 [[package]]
 name = "serde"
@@ -2879,6 +2954,33 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_with"
+version = "3.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4fa237f2807440d238e0364a218270b98f767a00d3dada77b1c53ae88940e2e7"
+dependencies = [
+ "base64",
+ "chrono",
+ "hex",
+ "serde_core",
+ "serde_json",
+ "serde_with_macros",
+ "time",
+]
+
+[[package]]
+name = "serde_with_macros"
+version = "3.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52a8e3ca0ca629121f70ab50f95249e5a6f925cc0f6ffe8256c45b728875706c"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -3482,6 +3584,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
 
 [[package]]
+name = "unty"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d49784317cd0d1ee7ec5c716dd598ec5b4483ea832a2dced265471cc0f690ae"
+
+[[package]]
 name = "url"
 version = "2.5.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3628,24 +3736,36 @@ dependencies = [
 
 [[package]]
 name = "wasm-encoder"
-version = "0.243.0"
+version = "0.241.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c55db9c896d70bd9fa535ce83cd4e1f2ec3726b0edd2142079f594fc3be1cb35"
+checksum = "e01164c9dda68301e34fdae536c23ed6fe90ce6d97213ccc171eebbd3d02d6b8"
 dependencies = [
  "leb128fmt",
- "wasmparser",
+ "wasmparser 0.241.2",
 ]
 
 [[package]]
 name = "wasm-metadata"
-version = "0.243.0"
+version = "0.241.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eae05bf9579f45a62e8d0a4e3f52eaa8da518883ac5afa482ec8256c329ecd56"
+checksum = "876fe286f2fa416386deedebe8407e6f19e0b5aeaef3d03161e77a15fa80f167"
 dependencies = [
  "anyhow",
  "indexmap",
  "wasm-encoder",
- "wasmparser",
+ "wasmparser 0.241.2",
+]
+
+[[package]]
+name = "wasmparser"
+version = "0.241.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46d90019b1afd4b808c263e428de644f3003691f243387d30d673211ee0cb8e8"
+dependencies = [
+ "bitflags 2.10.0",
+ "hashbrown 0.15.5",
+ "indexmap",
+ "semver",
 ]
 
 [[package]]
@@ -3655,7 +3775,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f6d8db401b0528ec316dfbe579e6ab4152d61739cfe076706d2009127970159d"
 dependencies = [
  "bitflags 2.10.0",
- "hashbrown 0.15.5",
  "indexmap",
  "semver",
 ]
@@ -3996,9 +4115,9 @@ checksum = "f17a85883d4e6d00e8a97c586de764dabcc06133f7f1d55dce5cdc070ad7fe59"
 
 [[package]]
 name = "wit-bindgen"
-version = "0.49.0"
+version = "0.48.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c64be1abfe5d4fdb2d41581fac134e8c9204da1e604b5500926478b7f264e36f"
+checksum = "7f8c2adb5f74ac9395bc3121c99a1254bf9310482c27b13f97167aedb5887138"
 dependencies = [
  "bitflags 2.10.0",
  "wit-bindgen-rust-macro",
@@ -4006,20 +4125,20 @@ dependencies = [
 
 [[package]]
 name = "wit-bindgen-core"
-version = "0.49.0"
+version = "0.48.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "886e8e938e4e9fe54143c080cbb99d7db5d19242b62ef225dbb28e17b3223bd8"
+checksum = "9b881a098cae03686d7a0587f8f306f8a58102ad8da8b5599100fbe0e7f5800b"
 dependencies = [
  "anyhow",
  "heck",
- "wit-parser",
+ "wit-parser 0.241.2",
 ]
 
 [[package]]
 name = "wit-bindgen-rust"
-version = "0.49.0"
+version = "0.48.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "145cac8fb12d99aea13a3f9e0d07463fa030edeebab2c03805eda0e1cc229bba"
+checksum = "69667efa439a453e1d50dac939c6cab6d2c3ac724a9d232b6631dad2472a5b70"
 dependencies = [
  "anyhow",
  "heck",
@@ -4033,9 +4152,9 @@ dependencies = [
 
 [[package]]
 name = "wit-bindgen-rust-macro"
-version = "0.49.0"
+version = "0.48.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6042452ac4e58891cdb6321bb98aabb9827dbaf6f4e971734d8dd86813319aea"
+checksum = "eae2e22cceb5d105d52326c07e3e67603a861cc7add70fc467f7cc7ec5265017"
 dependencies = [
  "anyhow",
  "prettyplease",
@@ -4048,9 +4167,9 @@ dependencies = [
 
 [[package]]
 name = "wit-component"
-version = "0.243.0"
+version = "0.241.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36f9fc53513e461ce51dcf17a3e331752cb829f1d187069e54af5608fc998fe4"
+checksum = "1fd0c57df25e7ee612d946d3b7646c1ddb2310f8280aa2c17e543b66e0812241"
 dependencies = [
  "anyhow",
  "bitflags 2.10.0",
@@ -4061,8 +4180,26 @@ dependencies = [
  "serde_json",
  "wasm-encoder",
  "wasm-metadata",
- "wasmparser",
- "wit-parser",
+ "wasmparser 0.241.2",
+ "wit-parser 0.241.2",
+]
+
+[[package]]
+name = "wit-parser"
+version = "0.241.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09ef1c6ad67f35c831abd4039c02894de97034100899614d1c44e2268ad01c91"
+dependencies = [
+ "anyhow",
+ "id-arena",
+ "indexmap",
+ "log",
+ "semver",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "unicode-xid",
+ "wasmparser 0.241.2",
 ]
 
 [[package]]
@@ -4080,7 +4217,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "unicode-xid",
- "wasmparser",
+ "wasmparser 0.243.0",
 ]
 
 [[package]]

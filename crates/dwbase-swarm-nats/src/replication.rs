@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
 
+use anyhow::Error;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -301,7 +302,10 @@ impl Replicator {
         transport.bus.subscribe(
             SUBJECT_BROADCAST,
             Box::new(move |_subject, bytes, _reply_to| {
-                let Ok(env) = bincode::deserialize::<crate::swarm::SwarmEnvelope>(&bytes) else {
+                let Ok((env, _)) = bincode::serde::decode_from_slice::<
+                    crate::swarm::SwarmEnvelope,
+                    _,
+                >(&bytes, bincode::config::standard()) else {
                     return;
                 };
                 if env.from == self_id.0 {
@@ -349,7 +353,8 @@ impl Replicator {
             },
             None,
         )?;
-        let bytes = bincode::serialize(&env)?;
+        let bytes = bincode::serde::encode_to_vec(&env, bincode::config::standard())
+            .map_err(Error::from)?;
         self.transport.bus.publish(SUBJECT_BROADCAST, None, bytes)?;
         Ok(())
     }
@@ -588,7 +593,7 @@ mod tests {
         )
         .unwrap();
         env.correlation_id = "dup-1".into();
-        let bytes = bincode::serialize(&env).unwrap();
+        let bytes = bincode::serde::encode_to_vec(&env, bincode::config::standard()).unwrap();
         bus.publish(&inbox, None, bytes.clone()).unwrap();
         bus.publish(&inbox, None, bytes).unwrap();
 
@@ -631,7 +636,7 @@ mod tests {
             )
             .unwrap();
             env.correlation_id = format!("cid-{idx}");
-            let bytes = bincode::serialize(&env).unwrap();
+            let bytes = bincode::serde::encode_to_vec(&env, bincode::config::standard()).unwrap();
             bus.publish(&inbox, None, bytes).unwrap();
         }
 

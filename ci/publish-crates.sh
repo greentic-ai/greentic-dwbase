@@ -33,9 +33,9 @@ for crate in "${CRATES[@]}"; do
   echo "==> publishing ${crate} ${DRYRUN}"
   set +e
   if [[ "${crate}" == "component-dwbase" ]]; then
-    OUTPUT=$(CARGO_BUILD_TARGET=wasm32-wasip2 cargo publish -p "${crate}" ${DRYRUN} --locked 2>&1)
+    OUTPUT=$(CARGO_BUILD_TARGET=wasm32-wasip2 cargo publish -p "${crate}" ${DRYRUN} 2>&1)
   else
-    OUTPUT=$(cargo publish -p "${crate}" ${DRYRUN} --locked 2>&1)
+    OUTPUT=$(cargo publish -p "${crate}" ${DRYRUN} 2>&1)
   fi
   STATUS=$?
   set -e

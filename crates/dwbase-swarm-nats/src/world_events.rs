@@ -35,16 +35,19 @@ pub struct AtomEventBatch {
 }
 
 pub fn encode_event_batch(batch: &AtomEventBatch) -> anyhow::Result<Vec<u8>> {
-    Ok(bincode::serialize(batch)?)
+    Ok(bincode::serde::encode_to_vec(
+        batch,
+        bincode::config::standard(),
+    )?)
 }
 
 pub fn decode_event_batch(bytes: &[u8]) -> anyhow::Result<AtomEventBatch> {
-    Ok(bincode::deserialize(bytes)?)
+    Ok(bincode::serde::decode_from_slice(bytes, bincode::config::standard()).map(|(v, _)| v)?)
 }
 
 fn new_batch_id() -> String {
     let mut bytes = [0u8; 8];
-    rand::thread_rng().fill_bytes(&mut bytes);
+    rand::rng().fill_bytes(&mut bytes);
     hex::encode(bytes)
 }
 

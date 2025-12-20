@@ -196,7 +196,8 @@ mod tests {
 
     #[test]
     fn wit_files_parse() {
-        let group = UnresolvedPackageGroup::parse_path(Path::new("wit/dwbase-core.wit")).unwrap();
+        let group =
+            UnresolvedPackageGroup::parse_path(Path::new("../../wit/dwbase-core.wit")).unwrap();
         assert_eq!(group.main.name.name.as_str(), "core");
     }
 

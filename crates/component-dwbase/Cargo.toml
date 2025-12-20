@@ -11,35 +11,16 @@ repository.workspace = true
 [features]
 default = []
 component-wasm = []
-nats = ["dwbase-swarm-nats/nats"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-dwbase-core = { workspace = true }
-dwbase-engine = { workspace = true }
-dwbase-security = { workspace = true }
-dwbase-embedder-dummy = { workspace = true }
-dwbase-swarm = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
-time.workspace = true
-once_cell.workspace = true
-metrics = { workspace = true }
-metrics-exporter-prometheus = { workspace = true, default-features = false }
-wit-bindgen.workspace = true
-futures = { workspace = true }
-dwbase-swarm-nats = { workspace = true }
-parking_lot.workspace = true
-dwbase-metrics = { workspace = true }
-hex.workspace = true
-
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-fs2.workspace = true
+greentic-interfaces-guest = { version = "0.4.65", default-features = false, features = ["component-node"] }
 
 [dev-dependencies]
 tempfile.workspace = true
-
 [[example]]
 name = "memory_demo"

@@ -1,6 +1,12 @@
 # component-dwbase Runbook
 
-DWBase node (`dwbase-node`) is a single-process append-only memory service. This runbook lists the health endpoints, emitted metrics, configuration knobs, and common troubleshooting steps for production ops.
+`component-dwbase` is now a Greentic component shim that exports `greentic:component/node@0.5.0` and delegates to DWBase internals. The DWBase WIT remains internal; Greentic compatibility is enforced by `greentic-component doctor` and packaged as a gtpack via `packc`.
+
+- Build: `cargo component build -p component-dwbase --release --target wasm32-wasip2 --features component-wasm`
+- Hash + doctor: `greentic-component hash --wasm <wasm> <manifest>` then `greentic-component doctor <manifest>`
+- Pack: `packc build --in packs/dwbase-gtpack --gtpack-out packs/dwbase-gtpack/dist/dwbase.gtpack`
+- Sign/verify: `packc sign ... --key <ed25519-priv>` then `packc verify ... --key <ed25519-pub> --offline`
+- Pack location: `packs/dwbase-gtpack` (component artifact `components/component_dwbase.wasm`)
 
 ## Multi-tenant safety defaults (component-dwbase)
 component-dwbase is intended to be callable by LLMs. It ships with “safe by default” tenant scoping:

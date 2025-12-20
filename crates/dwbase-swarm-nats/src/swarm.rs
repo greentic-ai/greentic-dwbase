@@ -47,7 +47,8 @@ impl SwarmEnvelope {
         message: SwarmMessage,
         reply_to: Option<String>,
     ) -> anyhow::Result<Self> {
-        let payload = bincode::serialize(&message).context("encode swarm message")?;
+        let payload = bincode::serde::encode_to_vec(&message, bincode::config::standard())
+            .context("encode swarm message")?;
         let now_ms = (std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
@@ -71,13 +72,15 @@ impl SwarmEnvelope {
     }
 
     pub fn decode_message(&self) -> anyhow::Result<SwarmMessage> {
-        bincode::deserialize(&self.payload).context("decode swarm message")
+        bincode::serde::decode_from_slice(&self.payload, bincode::config::standard())
+            .map(|(m, _)| m)
+            .context("decode swarm message")
     }
 }
 
 fn new_correlation_id() -> String {
     let mut bytes = [0u8; 16];
-    rand::thread_rng().fill_bytes(&mut bytes);
+    rand::rng().fill_bytes(&mut bytes);
     hex::encode(bytes)
 }
 
@@ -239,7 +242,10 @@ impl NatsSwarmTransport {
         bus.subscribe(
             &inbox,
             Box::new(move |_subject, bytes, reply_to| {
-                if let Ok(env) = bincode::deserialize::<SwarmEnvelope>(&bytes) {
+                if let Ok((env, _)) = bincode::serde::decode_from_slice::<SwarmEnvelope, _>(
+                    &bytes,
+                    bincode::config::standard(),
+                ) {
                     rx_clone.lock().push((reply_to.unwrap_or_default(), env));
                 }
             }),
@@ -262,7 +268,8 @@ impl NatsSwarmTransport {
         }
         let dest = inbox_subject(&to.0);
         let env = SwarmEnvelope::new(self.self_id.clone(), Some(to), msg, None)?;
-        let bytes = bincode::serialize(&env)?;
+        let bytes = bincode::serde::encode_to_vec(&env, bincode::config::standard())
+            .map_err(anyhow::Error::from)?;
         if let Err(e) = self.bus.publish(&dest, None, bytes) {
             self.mark_failure();
             return Err(e);
@@ -280,7 +287,7 @@ impl NatsSwarmTransport {
             anyhow::bail!("backing off");
         }
         let mut reply_id = [0u8; 8];
-        rand::thread_rng().fill_bytes(&mut reply_id);
+        rand::rng().fill_bytes(&mut reply_id);
         let reply_subject = format!(
             "dwbase.swarm.reply.{}.{}",
             self.self_id.0,
@@ -292,7 +299,10 @@ impl NatsSwarmTransport {
         self.bus.subscribe(
             &reply_subject,
             Box::new(move |_sub, bytes, _reply_to| {
-                if let Ok(env) = bincode::deserialize::<SwarmEnvelope>(&bytes) {
+                if let Ok((env, _)) = bincode::serde::decode_from_slice::<SwarmEnvelope, _>(
+                    &bytes,
+                    bincode::config::standard(),
+                ) {
                     rx_clone.lock().push(env);
                 }
             }),
@@ -305,7 +315,8 @@ impl NatsSwarmTransport {
             msg,
             Some(reply_subject.clone()),
         )?;
-        let bytes = bincode::serialize(&env)?;
+        let bytes = bincode::serde::encode_to_vec(&env, bincode::config::standard())
+            .map_err(anyhow::Error::from)?;
         self.bus.publish(&dest, Some(&reply_subject), bytes)?;
 
         let start = Instant::now();
@@ -331,7 +342,8 @@ impl NatsSwarmTransport {
     ) -> anyhow::Result<()> {
         let mut env = SwarmEnvelope::new(self.self_id.clone(), None, msg, None)?;
         env.correlation_id = correlation_id;
-        let bytes = bincode::serialize(&env)?;
+        let bytes = bincode::serde::encode_to_vec(&env, bincode::config::standard())
+            .map_err(anyhow::Error::from)?;
         self.bus.publish(reply_to, None, bytes)?;
         Ok(())
     }

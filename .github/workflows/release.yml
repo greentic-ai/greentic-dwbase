@@ -25,8 +25,23 @@ jobs:
       - name: Add wasm target
         run: rustup target add wasm32-wasip2
 
+      - name: Install greentic tools
+        run: |
+          cargo install greentic-component --version 0.4
+          cargo install packc --version 0.4
+          cargo install cargo-component --version 0.21
+
       - name: Build component + pack
-        run: ./packs/dwbase-memory/build.sh
+        run: |
+          cargo component build -p component-dwbase --release --target wasm32-wasip2 --features component-wasm
+          COMPONENT_WASM=target/wasm32-wasip2/release/component_dwbase.wasm
+          COMPONENT_MANIFEST=target/wasm32-wasip2/release/component.manifest.json
+          cp crates/component-dwbase/component.manifest.json "$COMPONENT_MANIFEST"
+          greentic-component hash --wasm "$COMPONENT_WASM" "$COMPONENT_MANIFEST"
+          mkdir -p packs/dwbase-gtpack/components
+          cp "$COMPONENT_WASM" packs/dwbase-gtpack/components/component_dwbase.wasm
+          cp "$COMPONENT_MANIFEST" packs/dwbase-gtpack/components/component.manifest.json
+          packc build --in packs/dwbase-gtpack --gtpack-out packs/dwbase-gtpack/dist/dwbase.gtpack
 
       - name: Setup ORAS
         uses: oras-project/setup-oras@v1
@@ -40,8 +55,8 @@ jobs:
         run: |
           ./tools/publish_components_oci.sh \
             --component-wasm target/wasm32-wasip2/release/component_dwbase.wasm \
-            --component-manifest crates/component-dwbase/component.manifest.json \
-            --pack packs/dwbase-memory/dist/dwbase-memory.gtpack \
+            --component-manifest target/wasm32-wasip2/release/component.manifest.json \
+            --pack packs/dwbase-gtpack/dist/dwbase.gtpack \
             --out-dir dist
 
       - name: Upload lockfiles
@@ -55,8 +70,8 @@ jobs:
       - name: Upload pack artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dwbase-memory.gtpack
-          path: packs/dwbase-memory/dist/dwbase-memory.gtpack
+          name: dwbase.gtpack
+          path: packs/dwbase-gtpack/dist/dwbase.gtpack
 
   cli-binaries:
     name: Build CLI binaries (${{ matrix.target }})
@@ -109,10 +124,10 @@ jobs:
           VERSION="${VERSION#v}"
           echo "PKG_VERSION=${VERSION}" >> "$GITHUB_ENV"
           mkdir -p dist
-          STAGE="dist/dwbase-${VERSION}-${TARGET}"
+          STAGE="dist/dwbase-cli-${VERSION}-${TARGET}"
           mkdir -p "$STAGE"
           cp "target/${TARGET}/release/${BIN_NAME}" "$STAGE/${BIN_NAME}"
-          tar -C dist -czf "dwbase-${VERSION}-${TARGET}.tar.gz" "dwbase-${VERSION}-${TARGET}"
+          tar -C dist -czf "dwbase-cli-${VERSION}-${TARGET}.tar.gz" "dwbase-cli-${VERSION}-${TARGET}"
 
       - name: Package artifact (windows)
         if: runner.os == 'Windows'
@@ -126,15 +141,15 @@ jobs:
           $version = "$Env:VERSION".TrimStart("v")
           echo "PKG_VERSION=$version" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          $stage = "dist/dwbase-$version-$Env:TARGET"
+          $stage = "dist/dwbase-cli-$version-$Env:TARGET"
           New-Item -ItemType Directory -Force -Path $stage | Out-Null
           Copy-Item "target/$Env:TARGET/release/$Env:BIN_NAME" "$stage/$Env:BIN_NAME"
-          Compress-Archive -Path "$stage/*" -DestinationPath "dist/dwbase-$version-$Env:TARGET.zip" -Force
+          Compress-Archive -Path "$stage/*" -DestinationPath "dist/dwbase-cli-$version-$Env:TARGET.zip" -Force
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/dwbase-*-${{ matrix.target }}.${{ matrix.archive }}
+            dist/dwbase-cli-*-${{ matrix.target }}.${{ matrix.archive }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
