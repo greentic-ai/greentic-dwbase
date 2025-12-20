@@ -1,0 +1,69 @@
+package dwbase:types;
+
+interface types {
+  type atom-id = string;
+  type world-key = string;
+  type worker-key = string;
+
+  enum atom-kind {
+    observation,
+    reflection,
+    plan,
+    action,
+    message,
+  }
+
+  type timestamp = string;
+
+  /// importance is clamped to [0.0, 1.0]
+  type importance = f32;
+
+  record atom {
+    id: atom-id,
+    world-key: world-key,
+    worker: worker-key,
+    kind: atom-kind,
+    timestamp: timestamp,
+    importance: importance,
+    payload-json: string,
+    vector: option<list<f32>>,
+    flags-list: list<string>,
+    labels: list<string>,
+    links: list<atom-id>,
+  }
+
+  record atom-filter {
+    world-key: option<world-key>,
+    kinds: list<atom-kind>,
+    labels: list<string>,
+    flag-filter: list<string>,
+    since: option<timestamp>,
+    until: option<timestamp>,
+    limit: option<u32>,
+  }
+
+  record new-atom {
+    world-key: world-key,
+    worker: worker-key,
+    kind: atom-kind,
+    timestamp: timestamp,
+    importance: importance,
+    payload-json: string,
+    vector: option<list<f32>>,
+    flags-list: list<string>,
+    labels: list<string>,
+    links: list<atom-id>,
+  }
+
+  record question {
+    world-key: world-key,
+    text: string,
+    filter: option<atom-filter>,
+  }
+
+  record answer {
+    world-key: world-key,
+    text: string,
+    supporting-atoms: list<atom>,
+  }
+}

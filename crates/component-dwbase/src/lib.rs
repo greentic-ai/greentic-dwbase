@@ -35,10 +35,7 @@ use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 use wit_bindgen::generate;
 
-generate!({
-    path: "../../wit/dwbase-core.wit",
-    world: "core",
-});
+generate!({ path: "wit/dwbase-core.wit", world: "core" });
 
 use exports::dwbase::core::engine::{
     self, Answer, Atom as WitAtom, AtomFilter as WitAtomFilter, AtomKind as WitAtomKind,

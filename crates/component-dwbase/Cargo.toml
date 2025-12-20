@@ -14,6 +14,9 @@ component-wasm = []
 nats = ["dwbase-swarm-nats/nats"]
 
 [lib]
+crate-type = ["rlib"]
+
+[target.'cfg(target_arch = "wasm32")'.lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]

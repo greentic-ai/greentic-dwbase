@@ -25,8 +25,7 @@ mod tests {
 
     #[test]
     fn wit_files_parse() {
-        let group =
-            UnresolvedPackageGroup::parse_path(Path::new("../../wit/dwbase-types.wit")).unwrap();
+        let group = UnresolvedPackageGroup::parse_path(Path::new("wit/dwbase-types.wit")).unwrap();
         let mut names = Vec::new();
         names.push(group.main.name.name.as_str());
         for pkg in &group.nested {
