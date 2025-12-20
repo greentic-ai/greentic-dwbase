@@ -29,8 +29,9 @@ jobs:
 
       - name: Install greentic tools
         run: |
-          cargo install greentic-component --version '^0.4'
-          cargo install packc --version '^0.4'
+          cargo install cargo-binstall
+          cargo binstall greentic-component -y
+          cargo binstall packc -y
 
       - name: Show workspace version
         id: version
