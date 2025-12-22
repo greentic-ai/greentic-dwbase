@@ -11,7 +11,7 @@ DWBase is the first database built for digital workers and agentic agents—and 
 - Vector: optional HNSW per-world ANN for reranking.
 - Security: capability-aware policies, rate limits, and replication allow/deny lists.
 - Swarm: durable peer membership, capability-aware replication filters, and replay protection.
-- Ops/UX: Prometheus-compatible metrics snapshots, CLI + HTTP node, devnet tooling, pack build for components.
+-- Ops/UX: Prometheus-compatible metrics via `/metrics` (HTTP), CLI + HTTP node, devnet tooling, pack build for components.
 - Built by AI: ~24 hours of uninterrupted AI pairing produced the current stack.
 
 ## Install the CLI fast (cargo-binstall)
@@ -31,9 +31,14 @@ cargo build -p dwbase-cli
 
 ## Quick start (remember, ask, replay)
 ```bash
-# from repo root
+# install CLI with prebuilt binaries (macOS/Linux/Windows)
+cargo binstall dwbase-cli -y
+
+# minimal config
 cp config.example.toml config.toml
-cargo run -p dwbase-node -- --config ./config.toml
+
+# start the node using the CLI launcher
+dwbase deploy local --config ./config.toml
 
 # remember (HTTP). Leave timestamp empty to auto-fill; importance must be 0.0–1.0.
 curl -X POST http://127.0.0.1:8080/remember \
@@ -57,9 +62,11 @@ Expected ask output (pretty JSON): supporting atoms sorted by timestamp, then im
   ```json
   {"id":"atom-123","world":"demo","worker":"cli","kind":"observation","timestamp":"2024-01-01T00:00:01Z","importance":0.7,"payload_json":"{\"text\":\"checkout latency 820ms\"}","vector":null,"flags":["hot"],"labels":["latency"],"links":["incident-42"]}
   ```
-- **Remember** (creates an atom, auto-fills timestamp if empty):
+- **Remember** (creates an atom, auto-fills timestamp if empty): call the HTTP API (no CLI subcommand):
   ```bash
-  dwbase remember demo --kind observation --importance 0.9 --payload-json '{"text":"web latency 820ms"}'
+  curl -X POST http://127.0.0.1:8080/remember \
+    -H "content-type: application/json" \
+    -d '{"world":"demo","worker":"cli","kind":"observation","timestamp":"","importance":0.9,"payload_json":"{\"text\":\"web latency 820ms\"}","vector":null,"flags":[],"labels":["latency"],"links":[]}'
   ```
 - **Ask** (recency-first, importance-second; uses reflex index + optional ANN):
   ```bash
@@ -68,17 +75,22 @@ Expected ask output (pretty JSON): supporting atoms sorted by timestamp, then im
   Returns supporting atoms; you decide how to answer.
 - **Replay** (ordered scan with filters):
   ```bash
-  dwbase replay demo --limit 20 --since "2024-01-01T00:00:00Z" --flags hot
+  dwbase replay demo --limit 20 --since "2024-01-01T00:00:00Z"
   ```
-- **Observe streams** (subscribe without storing):
+- **Observe streams** (HTTP API; CLI does not expose observe endpoints):
   ```bash
-  dwbase observe-start demo --kinds observation --labels latency
-  dwbase observe-poll 1 --max 10
+  curl -X POST http://127.0.0.1:8080/observe/start \
+    -H "content-type: application/json" \
+    -d '{"world_key":"demo","kinds":["observation"],"labels":["latency"]}'
+  # capture the handle from the JSON response, then poll:
+  curl -X POST http://127.0.0.1:8080/observe/poll \
+    -H "content-type: application/json" \
+    -d '{"handle":1,"max":10}'
   ```
   Streams are bounded with backpressure; duplicates are dropped via per-peer replay protection.
 - **Metrics snapshot** (WASI-friendly):
   ```bash
-  dwbase metrics-snapshot   # or call the component op to get JSON + Prom text
+  # metrics: scrape http://127.0.0.1:8080/metrics (Prometheus text) when built with `metrics` feature
   ```
 
 ## Swarms: how nodes find and trust each other

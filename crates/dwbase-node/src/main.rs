@@ -670,7 +670,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/worlds", get(list_worlds_handler))
         .route("/worlds/manage", post(manage_world_handler))
         .route("/worlds/policy", post(world_policy_handler))
-        .route("/atoms/:id", get(inspect_handler))
+        .route("/atoms/{id}", get(inspect_handler))
         .route("/index/status", get(index_status_handler))
         .route("/health", get(health_handler))
         .route("/healthz", get(healthz_handler))
