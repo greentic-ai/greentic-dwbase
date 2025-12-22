@@ -105,10 +105,7 @@ jobs:
           VERSION: ${{ needs.publish.outputs.version }}
         run: |
           mkdir -p dist
-          STAGE="dist/dwbase-cli-${VERSION}-${TARGET}"
-          mkdir -p "$STAGE"
-          cp "target/${TARGET}/release/${BIN_NAME}" "$STAGE/${BIN_NAME}"
-          tar -C dist -czf "dist/dwbase-cli-${VERSION}-${TARGET}.tar.gz" "dwbase-cli-${VERSION}-${TARGET}"
+          tar -C "target/${TARGET}/release" -czf "dist/dwbase-cli-${VERSION}-${TARGET}.tar.gz" "${BIN_NAME}"
 
       - name: Package artifact (windows)
         if: runner.os == 'Windows'
@@ -119,10 +116,8 @@ jobs:
           VERSION: ${{ needs.publish.outputs.version }}
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          $stage = "dist/dwbase-cli-$Env:VERSION-$Env:TARGET"
-          New-Item -ItemType Directory -Force -Path $stage | Out-Null
-          Copy-Item "target/$Env:TARGET/release/$Env:BIN_NAME" "$stage/$Env:BIN_NAME"
-          Compress-Archive -Path "$stage/*" -DestinationPath "dist/dwbase-cli-$Env:VERSION-$Env:TARGET.zip" -Force
+          $src = "target/$Env:TARGET/release/$Env:BIN_NAME"
+          Compress-Archive -Path $src -DestinationPath "dist/dwbase-cli-$Env:VERSION-$Env:TARGET.zip" -Force
 
       - name: Upload release asset (unix)
         if: runner.os != 'Windows'

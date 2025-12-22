@@ -125,10 +125,7 @@ jobs:
           VERSION="${VERSION#v}"
           echo "PKG_VERSION=${VERSION}" >> "$GITHUB_ENV"
           mkdir -p dist
-          STAGE="dist/dwbase-cli-${VERSION}-${TARGET}"
-          mkdir -p "$STAGE"
-          cp "target/${TARGET}/release/${BIN_NAME}" "$STAGE/${BIN_NAME}"
-          tar -C dist -czf "dwbase-cli-${VERSION}-${TARGET}.tar.gz" "dwbase-cli-${VERSION}-${TARGET}"
+          tar -C "target/${TARGET}/release" -czf "dwbase-cli-${VERSION}-${TARGET}.tar.gz" "${BIN_NAME}"
 
       - name: Package artifact (windows)
         if: runner.os == 'Windows'
@@ -142,10 +139,8 @@ jobs:
           $version = "$Env:VERSION".TrimStart("v")
           echo "PKG_VERSION=$version" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          $stage = "dist/dwbase-cli-$version-$Env:TARGET"
-          New-Item -ItemType Directory -Force -Path $stage | Out-Null
-          Copy-Item "target/$Env:TARGET/release/$Env:BIN_NAME" "$stage/$Env:BIN_NAME"
-          Compress-Archive -Path "$stage/*" -DestinationPath "dist/dwbase-cli-$version-$Env:TARGET.zip" -Force
+          $src = "target/$Env:TARGET/release/$Env:BIN_NAME"
+          Compress-Archive -Path $src -DestinationPath "dist/dwbase-cli-$version-$Env:TARGET.zip" -Force
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v1
