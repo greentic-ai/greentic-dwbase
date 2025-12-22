@@ -15,7 +15,7 @@ path = "src/main.rs"
 [package.metadata.binstall]
 pkg-url = "https://github.com/greentic-ai/greentic-dwbase/releases/download/v{ version }/dwbase-cli-{ version }-{ target }.tar.gz"
 pkg-fmt = "tgz"
-bin-dir = "."
+bin-dir = "dwbase-cli-{ version }-{ target }"
 bin = ["dwbase"]
 
 [[package.metadata.binstall.pkg]]
