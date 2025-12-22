@@ -524,7 +524,7 @@ dependencies = [
 
 [[package]]
 name = "component-dwbase"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "greentic-interfaces-guest",
  "serde",
@@ -819,7 +819,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
 name = "dwbase-bench"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "criterion",
@@ -835,7 +835,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-cli"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "clap",
@@ -864,7 +864,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-core"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "bincode 2.0.1",
  "rmp-serde",
@@ -875,7 +875,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-embedder-dummy"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "dwbase-engine",
  "tokio",
@@ -883,7 +883,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-engine"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "dwbase-core",
  "dwbase-metrics",
@@ -897,7 +897,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-metrics"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "metrics",
  "tracing",
@@ -905,7 +905,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-node"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "axum",
@@ -933,11 +933,11 @@ dependencies = [
 
 [[package]]
 name = "dwbase-pack-runner"
-version = "0.1.1"
+version = "0.1.2"
 
 [[package]]
 name = "dwbase-security"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "dwbase-core",
  "dwbase-engine",
@@ -947,7 +947,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-storage-sled"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "aes-gcm",
  "bincode 2.0.1",
@@ -966,7 +966,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-stream-local"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "dwbase-core",
  "dwbase-engine",
@@ -974,7 +974,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-swarm"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-trait",
  "bincode 2.0.1",
@@ -989,7 +989,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-swarm-nats"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "async-nats",
@@ -1011,7 +1011,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-vector-hnsw"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "dwbase-core",
  "dwbase-engine",
@@ -1024,7 +1024,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-wit-guest"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -1033,7 +1033,7 @@ dependencies = [
 
 [[package]]
 name = "dwbase-wit-host"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "dwbase-core",
  "dwbase-engine",
